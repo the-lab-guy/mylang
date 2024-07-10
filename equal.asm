@@ -25,6 +25,7 @@ main:
 	LEA rcx, read_format
 	LEA rdx, read_number
 	XOR eax, eax
+	MOV [rdx], eax
 	CALL scanf
 	ADD rsp, 32
 	PUSH qword [read_number]
@@ -33,6 +34,7 @@ main:
 	LEA rcx, read_format
 	LEA rdx, read_number
 	XOR eax, eax
+	MOV [rdx], eax
 	CALL scanf
 	ADD rsp, 32
 	PUSH qword [read_number]

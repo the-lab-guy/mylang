@@ -264,7 +264,7 @@ while ip < len(program):
         out.write(f"\tLEA rcx, read_format\n")
         out.write(f"\tLEA rdx, read_number\n")
         out.write(f"\tXOR eax, eax\n")
-        #out.write(f"\tMOV [rdx], eax\n")
+        out.write(f"\tMOV [rdx], eax\n")
         out.write(f"\tCALL scanf\n")
         out.write(f"\tADD rsp, 32\n")
         out.write(f"\tPUSH qword [read_number]\n")
