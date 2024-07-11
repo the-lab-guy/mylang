@@ -139,16 +139,25 @@ def precompile(program):
     for ip in range(len(program)):
         if program[ip] == "PRINT":
             string_literal = program[ip+1]
+            string_literal = string_literal.replace("@#", "%lld")
             program[ip+1] = len(string_literals)
             string_literals.append(string_literal)
 
-    return string_literals
+    variable_names = set()
+    for ip in range(len(program)):
+        if program[ip] == "LET":
+            variable_name = program[ip+1]
+            variable_names.add(variable_name)
+
+
+    return string_literals, variable_names
 
 #######################
 #   Compile Program
 #######################
 
-def compile(program_filepath=None, program=[], string_literals=[]) -> str:
+def compile(program_filepath=None, program=[], string_literals=[],
+            variable_names=[]) -> str:
 
     asm_filepath = program_filepath.split('.')[0] + ".asm"
     out = open(asm_filepath, "w")
@@ -165,6 +174,9 @@ def compile(program_filepath=None, program=[], string_literals=[]) -> str:
     section .bss
     read_number resq 1  ; 64-bits integer = 8 bytes
     """))
+
+    for variable_name in variable_names:
+        out.write(f"{variable_name} resq 1  ; 64-bits integer = 8 bytes\n")
 
     # "%lld" returns a 64-bit unsigned integer
     out.write(textwrap.dedent("""
@@ -206,6 +218,20 @@ def compile(program_filepath=None, program=[], string_literals=[]) -> str:
         elif opcode == "POP":
             out.write(f"; -- {opcode} --\n")
             out.write(f"\tPOP\n")
+        elif opcode == "LET":
+            variable_name = program[ip]
+            ip += 1
+            out.write(f"; -- {opcode} --\n")
+            out.write(f"\tLEA rcx, {variable_name}\n")
+            out.write(f"\tPOP rax\n")
+            out.write(f"\tMOV [rcx], rax\n")
+        elif opcode == "GET":
+            variable_name = program[ip]
+            ip += 1
+            out.write(f"; -- {opcode} --\n")
+            out.write(f"\tLEA rcx, {variable_name}\n")
+            out.write(f"\tMOV rax, [rcx]\n")
+            out.write(f"\tPUSH rax\n")
         elif opcode == "ADD":
             out.write(f"; -- {opcode} --\n")
             out.write(f"\tPOP rax\n")
@@ -214,11 +240,13 @@ def compile(program_filepath=None, program=[], string_literals=[]) -> str:
             out.write(f"; -- {opcode} --\n")
             out.write(f"\tPOP rax\n")
             out.write(f"\tSUB qword [rsp], rax\n")
-
         elif opcode == "PRINT":
             string_literal_index = program[ip]
             ip += 1
             out.write(f"; -- {opcode} --\n")
+            if "%lld" in string_literals[string_literal_index]:
+                out.write(f"\tPOP rdx\n")
+
             out.write(f"\tSUB rsp, 32\n")
             out.write(f"\tLEA rcx, string_literal_{string_literal_index}\n")
             out.write(f"\tXOR eax, eax\n")

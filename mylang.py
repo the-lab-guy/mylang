@@ -24,11 +24,12 @@ elif user_action == '-c':
     program, label_tracker = mlt.tokenise(program_filepath)
     print(program)
 
-    string_literals = mlt.precompile(program)
-    print(string_literals)
+    string_literals, variable_names = mlt.precompile(program)
+    print(string_literals, variable_names)
 
     print("[CMD] Compiling")
-    status, asm_filepath = mlt.compile(program_filepath, program, string_literals)
+    status, asm_filepath = mlt.compile(program_filepath, program, string_literals,
+                                       variable_names)
     print(status, asm_filepath)
 
     print("[CMD] Assembling")
