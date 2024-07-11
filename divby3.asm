@@ -1,28 +1,30 @@
 ; -- header --
-    bits 64
-    default rel
-    ; -- variables --
-    section .bss
-    read_number resq 1  ; 64-bits integer = 8 bytes
-    ; -- constants --
-    section .data
-    read_format db "%d", 0  ; the format string for scanf
-    string_literal_0 db "Negative", 0
+bits 64
+default rel
+
+; -- variables --
+section .bss
+read_number resq 1  ; 64-bits integer = 8 bytes
+
+; -- constants --
+section .data
+read_format db "%d", 0  ; the format string for scanf
+string_literal_0 db "Negative", 0
 string_literal_1 db "Not Divisible by 3", 0
 string_literal_2 db "Divisible by 3", 0
 string_literal_3 db "Zero", 0
+
 ; -- Entry Point --
-    section .text
-    global main
-    extern ExitProcess
-    extern printf
-    extern scanf
-            
-    main:
-    	PUSH rbp
-    	MOV rbp, rsp
-    ; 	SUB rsp, 32
-    ; -- READ --
+section .text
+global main
+extern ExitProcess
+extern printf
+extern scanf
+
+main:
+	PUSH rbp
+	MOV rbp, rsp
+; -- READ --
 	SUB rsp, 32
 	LEA rcx, read_format
 	LEA rdx, read_number

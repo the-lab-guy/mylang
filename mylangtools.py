@@ -1,5 +1,5 @@
 import mylangcore as core
-
+import textwrap
 
 ########################
 #   Tokenise Program
@@ -175,25 +175,30 @@ def compile(program_filepath=None, program=[], string_literals=[]) -> str:
     asm_filepath = program_filepath.split('.')[0] + ".asm"
     out = open(asm_filepath, "w")
 
-    out.write("""; -- header --
+    # trailing slash on next line suppresses first blank
+    out.write(textwrap.dedent("""\
+    ; -- header --
     bits 64
     default rel
-    """)
+    """))
 
-    out.write("""; -- variables --
+    out.write(textwrap.dedent("""
+    ; -- variables --
     section .bss
     read_number resq 1  ; 64-bits integer = 8 bytes
-    """)
+    """))
 
-    out.write("""; -- constants --
+    out.write(textwrap.dedent("""
+    ; -- constants --
     section .data
     read_format db "%d", 0  ; the format string for scanf
-    """)
+    """))
 
     for i, string_literal in enumerate(string_literals):
         out.write(f"string_literal_{i} db \"{string_literal}\", 0\n")
 
-    out.write("""; -- Entry Point --
+    out.write(textwrap.dedent("""
+    ; -- Entry Point --
     section .text
     global main
     extern ExitProcess
@@ -203,8 +208,7 @@ def compile(program_filepath=None, program=[], string_literals=[]) -> str:
     main:
     \tPUSH rbp
     \tMOV rbp, rsp
-    ; \tSUB rsp, 32
-    """)
+    """))
 
     ip = 0
     while ip < len(program):
