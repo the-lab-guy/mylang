@@ -178,24 +178,24 @@ def compile(program_filepath=None, program=[], string_literals=[]) -> str:
             number = program[ip]
             ip += 1
             
-            out.write(f"; -- PUSH --\n")
+            out.write(f"; -- {opcode} --\n")
             out.write(f"\tPUSH {number}\n")
         elif opcode == "POP":
-            out.write(f"; -- POP --\n")
+            out.write(f"; -- {opcode} --\n")
             out.write(f"\tPOP\n")
         elif opcode == "ADD":
-            out.write(f"; -- ADD --\n")
+            out.write(f"; -- {opcode} --\n")
             out.write(f"\tPOP rax\n")
             out.write(f"\tADD qword [rsp], rax\n")
         elif opcode == "SUB":
-            out.write(f"; -- SUB --\n")
+            out.write(f"; -- {opcode} --\n")
             out.write(f"\tPOP rax\n")
             out.write(f"\tSUB qword [rsp], rax\n")
 
         elif opcode == "PRINT":
             string_literal_index = program[ip]
             ip += 1
-            out.write(f"; -- PRINT --\n")
+            out.write(f"; -- {opcode} --\n")
             out.write(f"\tSUB rsp, 32\n")
             out.write(f"\tLEA rcx, string_literal_{string_literal_index}\n")
             out.write(f"\tXOR eax, eax\n")
@@ -203,7 +203,7 @@ def compile(program_filepath=None, program=[], string_literals=[]) -> str:
             out.write(f"\tADD rsp, 32\n")
 
         elif opcode == "READ":
-            out.write(f"; -- READ --\n")
+            out.write(f"; -- {opcode} --\n")
             out.write(f"\tSUB rsp, 32\n")
             out.write(f"\tLEA rcx, read_format\n")
             out.write(f"\tLEA rdx, read_number\n")
@@ -217,18 +217,18 @@ def compile(program_filepath=None, program=[], string_literals=[]) -> str:
             label = program[ip]
             ip += 1
 
-            out.write(f"; -- JUMP.EQ.0 --\n")
+            out.write(f"; -- {opcode} --\n")
             out.write(f"\tCMP qword [rsp], 0\n")
             out.write(f"\tJE {label}\n")
         elif opcode == "JUMP.GT.0":
             label = program[ip]
             ip += 1
 
-            out.write(f"; -- JUMP.GT.0 --\n")
+            out.write(f"; -- {opcode} --\n")
             out.write(f"\tCMP qword [rsp], 0\n")
             out.write(f"\tJG {label}\n")
         elif opcode == "HALT":
-            out.write(f"; -- HALT --\n")
+            out.write(f"; -- {opcode} --\n")
             out.write(f"\tJMP EXIT_LABEL\n")
 
     out.write(f"EXIT_LABEL:\n")
