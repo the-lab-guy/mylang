@@ -1,5 +1,8 @@
 READ
 JUMP.EQ.0 L1
+JUMP.GT.0 LOOP
+PRINT "negative"
+HALT
 
 LOOP:
 PUSH 2

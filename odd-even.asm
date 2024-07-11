@@ -9,8 +9,9 @@ read_number resq 1  ; 64-bits integer = 8 bytes
 ; -- constants --
 section .data
 read_format db "%lld", 0  ; the 64-bit format string for scanf
-string_literal_0 db "odd", 0
-string_literal_1 db "even", 0
+string_literal_0 db "negative", 0
+string_literal_1 db "odd", 0
+string_literal_2 db "even", 0
 
 ; -- Entry Point --
 section .text
@@ -34,6 +35,17 @@ main:
 ; -- JUMP.EQ.0 --
 	CMP qword [rsp], 0
 	JE L1
+; -- JUMP.GT.0 --
+	CMP qword [rsp], 0
+	JG LOOP
+; -- PRINT --
+	SUB rsp, 32
+	LEA rcx, string_literal_0
+	XOR eax, eax
+	CALL printf
+	ADD rsp, 32
+; -- HALT --
+	JMP EXIT_LABEL
 ; -- Label --
 LOOP:
 ; -- PUSH --
@@ -49,7 +61,7 @@ LOOP:
 	JG LOOP
 ; -- PRINT --
 	SUB rsp, 32
-	LEA rcx, string_literal_0
+	LEA rcx, string_literal_1
 	XOR eax, eax
 	CALL printf
 	ADD rsp, 32
@@ -59,7 +71,7 @@ LOOP:
 L1:
 ; -- PRINT --
 	SUB rsp, 32
-	LEA rcx, string_literal_1
+	LEA rcx, string_literal_2
 	XOR eax, eax
 	CALL printf
 	ADD rsp, 32
