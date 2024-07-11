@@ -21,7 +21,7 @@ if user_action == '-r':
 elif user_action == '-c':
     # compile program to executable
     print("[CMD] Preprocessing")
-    program = mlt.ctokenise(program_filepath)
+    program, label_tracker = mlt.tokenise(program_filepath)
     print(program)
 
     string_literals = mlt.precompile(program)
