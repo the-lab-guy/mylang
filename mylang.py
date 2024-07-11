@@ -1,6 +1,5 @@
 import sys
 import os
-from mylangcore import Stack
 import mylangtools as mlt
 
 # read arguments
