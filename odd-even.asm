@@ -8,7 +8,7 @@ read_number resq 1  ; 64-bits integer = 8 bytes
 
 ; -- constants --
 section .data
-read_format db "%d", 0  ; the format string for scanf
+read_format db "%lld", 0  ; the 64-bit format string for scanf
 string_literal_0 db "odd", 0
 string_literal_1 db "even", 0
 

@@ -188,10 +188,11 @@ def compile(program_filepath=None, program=[], string_literals=[]) -> str:
     read_number resq 1  ; 64-bits integer = 8 bytes
     """))
 
+    # "%lld" returns a 64-bit unsigned integer
     out.write(textwrap.dedent("""
     ; -- constants --
     section .data
-    read_format db "%d", 0  ; the format string for scanf
+    read_format db "%lld", 0  ; the 64-bit format string for scanf
     """))
 
     for i, string_literal in enumerate(string_literals):
