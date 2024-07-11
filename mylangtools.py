@@ -38,6 +38,16 @@ def tokenise(program_filepath=None):
             number = int(parts[1])
             program.append(number)
             token_counter += 1
+        elif opcode == "LET":
+            # create or assign value to an integer variable
+            variable_name = parts[1]
+            program.append(variable_name)
+            token_counter += 1
+        elif opcode == "GET":
+            # return value of an integer variable
+            variable_name = parts[1]
+            program.append(variable_name)
+            token_counter += 1
         elif opcode == "PRINT":
             # parse string literal
             string_literal = ' '.join(parts[1:])[1:-1]
@@ -65,6 +75,7 @@ def interpret(program=[], label_tracker={}) -> str:
 
     pc = 0
     stack = core.Stack(256)
+    heap = core.Heap(256)
 
     while program[pc] != "HALT":
         opcode = program[pc]
@@ -76,6 +87,15 @@ def interpret(program=[], label_tracker={}) -> str:
             stack.push(number)
         elif opcode == "POP":
             stack.pop()
+        elif opcode == "LET":
+            variable_name = program[pc]
+            pc += 1
+            a = stack.pop()
+            heap.store(variable_name, a)
+        elif opcode == "GET":
+            variable_name = program[pc]
+            pc += 1
+            stack.push(heap.fetch(variable_name))
         elif opcode == "ADD":
             a = stack.pop()
             b = stack.pop()
@@ -87,6 +107,9 @@ def interpret(program=[], label_tracker={}) -> str:
         elif opcode == "PRINT":
             string_literal = program[pc]
             pc += 1
+            if "@#" in string_literal:
+                a = stack.pop()
+                string_literal = string_literal.replace("@#", str(a))
             print(string_literal)
         elif opcode == "READ":
             number = int(input("?"))

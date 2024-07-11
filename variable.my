@@ -1,0 +1,13 @@
+PRINT "enter an integer"
+READ
+LET my_int
+
+PUSH 10
+GET my_int
+ADD
+LET my_int
+
+GET my_int
+PRINT "plus 10 = @#"
+
+HALT
