@@ -1,3 +1,4 @@
 *.exe
 *.o
 __pycache__/*.pyc
+mylang.code-workspace
