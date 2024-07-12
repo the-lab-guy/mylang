@@ -1,0 +1,20 @@
+PRINT "Enter an integer: "
+READ
+
+JUMP.EQ.0 Zero
+JUMP.LT.0 LessThan
+JUMP.GT.0 GreaterThan
+PRINT "Error! "
+HALT
+
+Zero:
+PRINT "Zero "
+HALT
+
+LessThan:
+PRINT "Negative "
+HALT
+
+GreaterThan:
+PRINT "Positive "
+HALT
