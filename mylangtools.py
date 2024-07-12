@@ -56,7 +56,9 @@ def tokenise(program_filepath=None):
         elif opcode == "JUMP.EQ.0":
             # read label
             label = parts[1]
+            print(f"label={label}")
             program.append(label)
+            print(f"last token={program[:-1]}")
             token_counter += 1
         elif opcode == "JUMP.GT.0":
             # read label
@@ -101,24 +103,6 @@ def interpret(program=[], label_tracker={}) -> str:
             variable_name = program[pc]
             pc += 1
             stack.push(heap.fetch(variable_name))
-        elif opcode == "ADD":
-            a = stack.pop()
-            b = stack.pop()
-            stack.push(a+b)
-        elif opcode == "SUB":
-            a = stack.pop()
-            b = stack.pop()
-            stack.push(b-a)
-        elif opcode == "PRINT":
-            string_literal = program[pc]
-            pc += 1
-            if "@#" in string_literal:
-                a = stack.pop()
-                string_literal = string_literal.replace("@#", str(a))
-            print(string_literal)
-        elif opcode == "READ":
-            number = int(input())
-            stack.push(number)
         elif opcode == "JUMP.EQ.0":
             number = stack.top()
             if number == 0:
@@ -137,6 +121,32 @@ def interpret(program=[], label_tracker={}) -> str:
                 pc = label_tracker[program[pc]]
             else:
                 pc += 1
+        elif opcode == "ADD":
+            a = stack.pop()
+            b = stack.pop()
+            stack.push(a+b)
+        elif opcode == "SUB":
+            a = stack.pop()
+            b = stack.pop()
+            stack.push(b-a)
+        elif opcode == "MUL":
+            a = stack.pop()
+            b = stack.pop()
+            stack.push(a*b)
+        elif opcode == "DIV":
+            a = stack.pop()
+            b = stack.pop()
+            stack.push(b//a)
+        elif opcode == "PRINT":
+            string_literal = program[pc]
+            pc += 1
+            if "@#" in string_literal:
+                a = stack.pop()
+                string_literal = string_literal.replace("@#", str(a))
+            print(string_literal)
+        elif opcode == "READ":
+            number = int(input())
+            stack.push(number)
 
     return "OK"
 
@@ -228,7 +238,7 @@ def compile(program_filepath=None, program=[], string_literals=[],
             out.write(f"\tPUSH {number}\n")
         elif opcode == "POP":
             out.write(f"; -- {opcode} --\n")
-            out.write(f"\tPOP\n")
+            out.write(f"\tPOP rax\n")
         elif opcode == "PUT":
             variable_name = program[ip]
             ip += 1
@@ -251,6 +261,19 @@ def compile(program_filepath=None, program=[], string_literals=[],
             out.write(f"; -- {opcode} --\n")
             out.write(f"\tPOP rax\n")
             out.write(f"\tSUB qword [rsp], rax\n")
+        elif opcode == "MUL":
+            out.write(f"; -- {opcode} --\n")
+            out.write(f"\tPOP rax\n")
+            out.write(f"\tPOP rdx\n")
+            out.write(f"\tIMUL rdx, rax\n")
+            out.write(f"\tPUSH rdx\n")
+        elif opcode == "DIV":
+            out.write(f"; -- {opcode} --\n")
+            out.write(f"\tPOP rcx\n")
+            out.write(f"\tPOP rax\n")
+            out.write(f"\tCQO  ; sign extend rax into rdx:rax\n")
+            out.write(f"\tIDIV rcx\n")
+            out.write(f"\tPUSH rax\n")
         elif opcode == "PRINT":
             string_literal_index = program[ip]
             ip += 1

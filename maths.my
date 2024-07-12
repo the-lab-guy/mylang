@@ -1,0 +1,35 @@
+PRINT "Enter an integer: "
+READ
+PUT first_int
+
+PRINT "Enter another integer: "
+READ
+PUT second_int
+
+GET first_int
+GET second_int
+ADD
+PRINT "ADD = @# "
+
+GET first_int
+GET second_int
+SUB
+PRINT "SUB = @# "
+
+GET first_int
+GET second_int
+MUL
+PRINT "MUL = @# "
+
+GET first_int
+GET second_int
+JUMP.EQ.0 DivByZero
+
+DIV
+PRINT "DIV = @# "
+HALT
+
+DivByZero:
+PRINT "Cannot divide by zero "
+POP
+HALT
