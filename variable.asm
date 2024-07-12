@@ -38,7 +38,7 @@ main:
 	CALL scanf
 	ADD rsp, 32
 	PUSH qword [read_number]
-; -- LET --
+; -- PUT --
 	LEA rcx, my_int
 	POP rax
 	MOV [rcx], rax
@@ -51,7 +51,7 @@ main:
 ; -- ADD --
 	POP rax
 	ADD qword [rsp], rax
-; -- LET --
+; -- PUT --
 	LEA rcx, my_int
 	POP rax
 	MOV [rcx], rax

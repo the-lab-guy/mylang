@@ -38,7 +38,7 @@ def tokenise(program_filepath=None):
             number = int(parts[1])
             program.append(number)
             token_counter += 1
-        elif opcode == "LET":
+        elif opcode == "PUT":
             # create or assign value to an integer variable
             variable_name = parts[1]
             program.append(variable_name)
@@ -87,7 +87,7 @@ def interpret(program=[], label_tracker={}) -> str:
             stack.push(number)
         elif opcode == "POP":
             stack.pop()
-        elif opcode == "LET":
+        elif opcode == "PUT":
             variable_name = program[pc]
             pc += 1
             a = stack.pop()
@@ -145,7 +145,7 @@ def precompile(program):
 
     variable_names = set()
     for ip in range(len(program)):
-        if program[ip] == "LET":
+        if program[ip] == "PUT":
             variable_name = program[ip+1]
             variable_names.add(variable_name)
 
@@ -218,7 +218,7 @@ def compile(program_filepath=None, program=[], string_literals=[],
         elif opcode == "POP":
             out.write(f"; -- {opcode} --\n")
             out.write(f"\tPOP\n")
-        elif opcode == "LET":
+        elif opcode == "PUT":
             variable_name = program[ip]
             ip += 1
             out.write(f"; -- {opcode} --\n")
