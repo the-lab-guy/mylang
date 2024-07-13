@@ -56,9 +56,9 @@ def tokenise(program_filepath=None):
         elif opcode == "JUMP.EQ.0":
             # read label
             label = parts[1]
-            print(f"label={label}")
+            #print(f"label={label}")
             program.append(label)
-            print(f"last token={program[:-1]}")
+            #print(f"last token={program[:-1]}")
             token_counter += 1
         elif opcode == "JUMP.GT.0":
             # read label
@@ -86,9 +86,13 @@ def interpret(program=[], label_tracker={}) -> str:
 
     while program[pc] != "HALT":
         opcode = program[pc]
+        #print(pc, opcode)
         pc += 1
 
-        if opcode == "PUSH":
+        # skip if its a label
+        if opcode.endswith(":"):
+            continue
+        elif opcode == "PUSH":
             number = program[pc]
             pc += 1
             stack.push(number)
@@ -135,6 +139,8 @@ def interpret(program=[], label_tracker={}) -> str:
             stack.push(a*b)
         elif opcode == "DIV":
             a = stack.pop()
+            if a == 0:
+                return f"ERROR at token {pc-1}: {opcode}. Cannot divide by zero"
             b = stack.pop()
             stack.push(b//a)
         elif opcode == "PRINT":
@@ -147,6 +153,8 @@ def interpret(program=[], label_tracker={}) -> str:
         elif opcode == "READ":
             number = int(input())
             stack.push(number)
+        else:
+            return f"ERROR at token {pc-1}: {opcode}. Syntax error"
 
     return "OK"
 
