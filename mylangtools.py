@@ -211,6 +211,7 @@ def compile(program_filepath=None, program=[], string_literals=[],
     out.write(textwrap.dedent("""
     ; -- constants --
     section .data
+    error_div_by_zero db "Error: Division by zero", 0
     read_format db "%lld", 0  ; the 64-bit format string for scanf
     """))
 
@@ -278,6 +279,8 @@ def compile(program_filepath=None, program=[], string_literals=[],
         elif opcode == "DIV":
             out.write(f"; -- {opcode} --\n")
             out.write(f"\tPOP rcx\n")
+            out.write(f"\tTEST rcx, rcx\n")
+            out.write(f"\tJZ ERROR_LABEL\n")
             out.write(f"\tPOP rax\n")
             out.write(f"\tCQO  ; sign extend rax into rdx:rax\n")
             out.write(f"\tIDIV rcx\n")
@@ -330,7 +333,17 @@ def compile(program_filepath=None, program=[], string_literals=[],
         elif opcode == "HALT":
             out.write(f"; -- {opcode} --\n")
             out.write(f"\tJMP EXIT_LABEL\n")
+        else:
+            return f"ERROR: Unrecognised opcode {opcode} in {program_filepath}", ""
 
+    out.write(f"ERROR_LABEL:\n")
+    out.write(f"; -- ERROR --\n")
+    out.write(f"\tSUB rsp, 32\n")
+    out.write(f"\tLEA rcx, error_div_by_zero\n")
+    out.write(f"\tXOR eax, eax\n")
+    out.write(f"\tCALL printf\n")
+    out.write(f"\tADD rsp, 32\n")
+    
     out.write(f"EXIT_LABEL:\n")
     out.write(f"\tXOR rax, rax\n")
     out.write(f"\tCALL ExitProcess\n")

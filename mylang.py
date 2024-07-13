@@ -31,6 +31,8 @@ elif user_action == '-c':
     status, asm_filepath = mlt.compile(program_filepath, program, string_literals,
                                        variable_names)
     print(status, asm_filepath)
+    if status != "OK":
+        quit()
 
     print("[CMD] Assembling")
     os.system(f"nasm -g -f elf64 {asm_filepath}")

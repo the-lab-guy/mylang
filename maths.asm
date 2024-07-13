@@ -5,11 +5,12 @@ default rel
 ; -- variables --
 section .bss
 read_number resq 1  ; 64-bits integer = 8 bytes
-second_int resq 1  ; 64-bits integer = 8 bytes
 first_int resq 1  ; 64-bits integer = 8 bytes
+second_int resq 1  ; 64-bits integer = 8 bytes
 
 ; -- constants --
 section .data
+error_div_by_zero db "Error: Division by zero", 0
 read_format db "%lld", 0  ; the 64-bit format string for scanf
 string_literal_0 db "Enter an integer: ", 0
 string_literal_1 db "Enter another integer: ", 0
@@ -136,6 +137,8 @@ main:
 	JE DivByZero
 ; -- DIV --
 	POP rcx
+	TEST rcx, rcx
+	JZ ERROR_LABEL
 	POP rax
 	CQO  ; sign extend rax into rdx:rax
 	IDIV rcx
@@ -161,6 +164,13 @@ DivByZero:
 	POP rax
 ; -- HALT --
 	JMP EXIT_LABEL
+ERROR_LABEL:
+; -- ERROR --
+	SUB rsp, 32
+	LEA rcx, error_div_by_zero
+	XOR eax, eax
+	CALL printf
+	ADD rsp, 32
 EXIT_LABEL:
 	XOR rax, rax
 	CALL ExitProcess
