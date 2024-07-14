@@ -350,3 +350,6 @@ def compile(program_filepath=None, program=[], string_literals=[],
 
     out.close()
     return "OK", asm_filepath
+
+if __name__ == "__main__":
+    print("Mylang tools library")

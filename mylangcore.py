@@ -71,3 +71,6 @@ class Error:
 
         return f"ERROR: {_line}{_opcode}{Error.__Messages[_key]}"
     
+
+if __name__ == "__main__":
+    print("Mylang core objects library")
