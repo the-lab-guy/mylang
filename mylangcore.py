@@ -35,3 +35,39 @@ class Heap:
 
     def size (self):
         return self.count
+
+class Error:
+
+    __Messages = {
+        "OK"    : "OK",
+        "DIV0"  : "Division by zero",
+        "NOLAB" : "Label name not found",
+        "NOVAR" : "Variable name not found",
+        "OPCODE": "Unknown instruction opcode",
+        "MISS"  : "Missing parameter",
+        "TYPE"  : "Incorrect parameter type"
+    }
+    
+    def __init__(self) -> None:
+        pass
+
+    def message (err_key=None, err_line=None, err_opcode=None) -> str:
+        _key = err_key
+        _line = err_line
+        _opcode = err_opcode
+
+        if _key is None:
+            return "No error code specified"
+        
+        if _line is None:
+            _line = ""
+        else:
+            _line = str(_line) + ": "
+        
+        if _opcode is None:
+            _opcode = ""
+        else:
+            _opcode = str(_opcode) + ": "
+
+        return f"ERROR: {_line}{_opcode}{Error.__Messages[_key]}"
+    

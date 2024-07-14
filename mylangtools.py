@@ -140,7 +140,7 @@ def interpret(program=[], label_tracker={}) -> str:
         elif opcode == "DIV":
             a = stack.pop()
             if a == 0:
-                return f"ERROR at token {pc-1}: {opcode}. Cannot divide by zero"
+                return core.Error.message("DIV0", pc-1, opcode)
             b = stack.pop()
             stack.push(b//a)
         elif opcode == "PRINT":
