@@ -1,3 +1,5 @@
+from enum import Enum
+
 class Stack:
 
     def __init__(self, size) -> None:
@@ -36,18 +38,8 @@ class Heap:
     def size (self):
         return self.count
 
-class Error:
 
-    __Messages = {
-        "OK"    : "OK",
-        "DIV0"  : "Division by zero",
-        "NOLAB" : "Label name not found",
-        "NOVAR" : "Variable name not found",
-        "OPCODE": "Unknown instruction opcode",
-        "MISS"  : "Missing parameter",
-        "TYPE"  : "Incorrect parameter type"
-    }
-    
+class Error:
     def __init__(self) -> None:
         pass
 
@@ -61,15 +53,21 @@ class Error:
         
         if _line is None:
             _line = ""
-        else:
-            _line = str(_line) + ": "
         
         if _opcode is None:
             _opcode = ""
-        else:
-            _opcode = str(_opcode) + ": "
 
-        return f"ERROR: {_line}{_opcode}{Error.__Messages[_key]}"
+        return f"ERROR: {_key.value} at [{_line}:{_opcode}]"
+    
+
+class Messages(Enum):
+    OK       = "OK"
+    E_DIV0   = "Division by zero"
+    E_NOLAB  = "Label name not found"
+    E_NOVAR  = "Variable name not found"
+    E_OPCODE = "Unknown instruction"
+    E_MISS   = "Missing parameter"
+    E_TYPE   = "Incorrect parameter type"
     
 
 if __name__ == "__main__":

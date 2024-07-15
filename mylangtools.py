@@ -86,7 +86,6 @@ def interpret(program=[], label_tracker={}) -> str:
 
     while program[pc] != "HALT":
         opcode = program[pc]
-        #print(pc, opcode)
         pc += 1
 
         # skip if its a label
@@ -140,7 +139,7 @@ def interpret(program=[], label_tracker={}) -> str:
         elif opcode == "DIV":
             a = stack.pop()
             if a == 0:
-                return core.Error.message("DIV0", pc-1, opcode)
+                return core.Error.message(core.Messages.E_DIV0, pc-1, opcode)
             b = stack.pop()
             stack.push(b//a)
         elif opcode == "PRINT":
@@ -154,7 +153,7 @@ def interpret(program=[], label_tracker={}) -> str:
             number = int(input())
             stack.push(number)
         else:
-            return f"ERROR at token {pc-1}: {opcode}. Syntax error"
+            return core.Error.message(core.Messages.E_OPCODE, pc-1, opcode)
 
     return "OK"
 
