@@ -61,14 +61,15 @@ class Error:
     
 
 class Messages(Enum):
-    OK       = "OK"
+    M_OK       = "OK"
     E_DIV0   = "Division by zero"
-    E_NOLAB  = "Label name not found"
+    E_NOLBL  = "Label name not found"
     E_NOVAR  = "Variable name not found"
-    E_OPCODE = "Unknown instruction"
+    E_OPCOD  = "Unknown instruction"
     E_MISS   = "Missing parameter"
     E_TYPE   = "Incorrect parameter type"
-    
+    F_NUMB   = "%lld"
+    F_STR    = "%s"
 
 if __name__ == "__main__":
     print("Mylang core objects library")

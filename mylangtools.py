@@ -153,7 +153,7 @@ def interpret(program=[], label_tracker={}) -> str:
             number = int(input())
             stack.push(number)
         else:
-            return core.Error.message(core.Messages.E_OPCODE, pc-1, opcode)
+            return core.Error.message(core.Messages.E_OPCOD, pc-1, opcode)
 
     return "OK"
 
@@ -200,7 +200,7 @@ def compile(program_filepath=None, program=[], string_literals=[],
     out.write(textwrap.dedent("""
     ; -- variables --
     section .bss
-    read_number resq 1  ; 64-bits integer = 8 bytes
+    read_buffer resq 1  ; 64-bits integer = 8 bytes
     """))
 
     for variable_name in variable_names:
@@ -210,9 +210,12 @@ def compile(program_filepath=None, program=[], string_literals=[],
     out.write(textwrap.dedent("""
     ; -- constants --
     section .data
-    error_div_by_zero db "Error: Division by zero", 0
-    read_format db "%lld", 0  ; the 64-bit format string for scanf
     """))
+
+    for message in core.Messages:
+        out.write(f"{message.name:7} db \"{message.value}\", 0\n")
+
+    out.write("\n")  # insert a blank line
 
     for i, string_literal in enumerate(string_literals):
         out.write(f"string_literal_{i} db \"{string_literal}\", 0\n")
@@ -300,13 +303,13 @@ def compile(program_filepath=None, program=[], string_literals=[],
         elif opcode == "READ":
             out.write(f"; -- {opcode} --\n")
             out.write(f"\tSUB rsp, 32\n")
-            out.write(f"\tLEA rcx, read_format\n")
-            out.write(f"\tLEA rdx, read_number\n")
+            out.write(f"\tLEA rcx, F_NUMB\n")  # format string
+            out.write(f"\tLEA rdx, read_buffer\n")
             out.write(f"\tXOR eax, eax\n")
             out.write(f"\tMOV [rdx], eax\n")
             out.write(f"\tCALL scanf\n")
             out.write(f"\tADD rsp, 32\n")
-            out.write(f"\tPUSH qword [read_number]\n")
+            out.write(f"\tPUSH qword [read_buffer]\n")
 
         elif opcode == "JUMP.EQ.0":
             label = program[ip]
@@ -338,7 +341,7 @@ def compile(program_filepath=None, program=[], string_literals=[],
     out.write(f"ERROR_LABEL:\n")
     out.write(f"; -- ERROR --\n")
     out.write(f"\tSUB rsp, 32\n")
-    out.write(f"\tLEA rcx, error_div_by_zero\n")
+    out.write(f"\tLEA rcx, E_DIV0\n")
     out.write(f"\tXOR eax, eax\n")
     out.write(f"\tCALL printf\n")
     out.write(f"\tADD rsp, 32\n")
