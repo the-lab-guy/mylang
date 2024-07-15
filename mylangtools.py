@@ -292,7 +292,7 @@ def compile(program_filepath=None, program=[], string_literals=[],
             ip += 1
             out.write(f"; -- {opcode} --\n")
             if "%lld" in string_literals[string_literal_index]:
-                out.write(f"\tPOP rdx\n")
+                out.write(f"\tPOP rdx\n")  # value to print
 
             out.write(f"\tSUB rsp, 32\n")
             out.write(f"\tLEA rcx, string_literal_{string_literal_index}\n")
@@ -336,7 +336,8 @@ def compile(program_filepath=None, program=[], string_literals=[],
             out.write(f"; -- {opcode} --\n")
             out.write(f"\tJMP EXIT_LABEL\n")
         else:
-            return f"ERROR: Unrecognised opcode {opcode} in {program_filepath}", ""
+            return f"{core.Error.message(core.Messages.E_OPCOD, ip-1, opcode)} in {program_filepath}", ""
+
 
     out.write(f"ERROR_LABEL:\n")
     out.write(f"; -- ERROR --\n")
