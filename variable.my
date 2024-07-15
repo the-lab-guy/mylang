@@ -1,13 +1,13 @@
 PRINT "enter an integer"
 READ
-PUT my_int
+POP my_int
 
 PUSH 10
-GET my_int
+PUSH my_int
 ADD
-PUT my_int
+POP my_int
 
-GET my_int
+PUSH my_int
 PRINT "plus 10 = @#"
 
 HALT

@@ -34,20 +34,28 @@ def tokenise(program_filepath=None):
 
         # handle each opcode
         if opcode == "PUSH":
-            # expecting a number
-            number = int(parts[1])
-            program.append(number)
-            token_counter += 1
-        elif opcode == "PUT":
-            # create or assign value to an integer variable
-            variable_name = parts[1]
-            program.append(variable_name)
-            token_counter += 1
-        elif opcode == "GET":
+            # expecting a number or a variable name
+            operand = str(parts[1])
+            if operand.isnumeric():
+                number = int(parts[1])
+                program.append(number)
+                token_counter += 1
+            elif operand[0].isalpha():
+                variable_name = operand
+                program.append(variable_name)
+                token_counter += 1
+            else:
+                print(f"Error: Illegal variable name [{operand}]")
+                quit()
+        elif opcode == "POP":
             # return value of an integer variable
-            variable_name = parts[1]
-            program.append(variable_name)
-            token_counter += 1
+            variable_name = str(parts[1])
+            if variable_name[0].isalpha():
+                program.append(variable_name)
+                token_counter += 1
+            else:
+                print(f"Error: Illegal variable name [{variable_name}]")
+                quit()
         elif opcode == "PRINT":
             # parse string literal
             string_literal = ' '.join(parts[1:])[1:-1]
@@ -92,20 +100,25 @@ def interpret(program=[], label_tracker={}) -> str:
         if opcode.endswith(":"):
             continue
         elif opcode == "PUSH":
-            number = program[pc]
-            pc += 1
-            stack.push(number)
+            operand = str(program[pc])
+            if operand.isnumeric():
+                number = program[pc]
+                pc += 1
+                stack.push(number)
+            elif operand[0].isalpha():
+                variable_name = program[pc]
+                pc += 1
+                stack.push(heap.fetch(variable_name))
+            else:
+                return core.Error.message(core.Messages.E_NOVAR, pc-1, opcode)
         elif opcode == "POP":
-            stack.pop()
-        elif opcode == "PUT":
             variable_name = program[pc]
-            pc += 1
-            a = stack.pop()
-            heap.store(variable_name, a)
-        elif opcode == "GET":
-            variable_name = program[pc]
-            pc += 1
-            stack.push(heap.fetch(variable_name))
+            if variable_name[0].isalpha():
+                pc += 1
+                a = stack.pop()
+                heap.store(variable_name, a)
+            else:
+                return core.Error.message(core.Messages.E_NOVAR, pc-1, opcode)
         elif opcode == "JUMP.EQ.0":
             number = stack.top()
             if number == 0:
@@ -167,13 +180,13 @@ def precompile(program):
     for ip in range(len(program)):
         if program[ip] == "PRINT":
             string_literal = program[ip+1]
-            string_literal = string_literal.replace("@#", "%lld")
+            string_literal = string_literal.replace("@#", core.Messages.F_NUMB.value)
             program[ip+1] = len(string_literals)
             string_literals.append(string_literal)
 
     variable_names = set()
     for ip in range(len(program)):
-        if program[ip] == "PUT":
+        if program[ip] == "POP":
             variable_name = program[ip+1]
             variable_names.add(variable_name)
 
@@ -242,28 +255,25 @@ def compile(program_filepath=None, program=[], string_literals=[],
             out.write(f"; -- Label --\n")
             out.write(f"{opcode}\n")
         elif opcode == "PUSH":
-            number = program[ip]
+            operand = program[ip]
             ip += 1
             
-            out.write(f"; -- {opcode} --\n")
-            out.write(f"\tPUSH {number}\n")
+            # number or variable?
+            if operand not in variable_names:
+                out.write(f"; -- {opcode} num --\n")
+                out.write(f"\tPUSH {operand}\n")
+            else:
+                out.write(f"; -- {opcode} var --\n")
+                out.write(f"\tLEA rcx, {operand}\n")
+                out.write(f"\tMOV rax, [rcx]\n")
+                out.write(f"\tPUSH rax\n")
         elif opcode == "POP":
-            out.write(f"; -- {opcode} --\n")
-            out.write(f"\tPOP rax\n")
-        elif opcode == "PUT":
             variable_name = program[ip]
             ip += 1
             out.write(f"; -- {opcode} --\n")
             out.write(f"\tLEA rcx, {variable_name}\n")
             out.write(f"\tPOP rax\n")
             out.write(f"\tMOV [rcx], rax\n")
-        elif opcode == "GET":
-            variable_name = program[ip]
-            ip += 1
-            out.write(f"; -- {opcode} --\n")
-            out.write(f"\tLEA rcx, {variable_name}\n")
-            out.write(f"\tMOV rax, [rcx]\n")
-            out.write(f"\tPUSH rax\n")
         elif opcode == "ADD":
             out.write(f"; -- {opcode} --\n")
             out.write(f"\tPOP rax\n")
