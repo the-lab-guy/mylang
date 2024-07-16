@@ -100,81 +100,84 @@ def interpret(program=[], label_tracker={}) -> str:
         opcode = program[pc]
         pc += 1
 
-        # skip if its a label
-        if opcode.endswith(":"):
-            continue
-        elif opcode == "PUSH":
-            operand = str(program[pc])
-            if operand.isnumeric():
-                number = int(program[pc])
-                pc += 1
-                stack.push(number)
-            elif operand.isidentifier():
-                variable_name = program[pc]
-                pc += 1
-                try:
+        try:
+            # skip if its a label
+            if opcode.endswith(":"):
+                continue
+            elif opcode == "PUSH":
+                operand = str(program[pc])
+                if operand.isnumeric():
+                    number = int(program[pc])
+                    pc += 1
+                    stack.push(number)
+                elif operand.isidentifier():
+                    variable_name = program[pc]
+                    pc += 1
                     stack.push(heap.fetch(variable_name))
-                except(KeyError):
-                    opcode = opcode + ' ' + variable_name
-                    return core.Error.message(core.Messages.E_NOVAR, pc-1, opcode)
-            else:
-                return core.Error.message(core.Messages.E_ILLEG, pc-1, opcode)
-        elif opcode == "POP":
-            variable_name = str(program[pc])
-            if variable_name.isidentifier():
-                pc += 1
+                else:
+                    return core.Error.message(core.Messages.E_ILLEG, pc-1, opcode)
+            elif opcode == "POP":
+                variable_name = str(program[pc])
+                if variable_name.isidentifier():
+                    pc += 1
+                    a = stack.pop()
+                    heap.store(variable_name, a)
+                else:
+                    return core.Error.message(core.Messages.E_ILLEG, pc-1, opcode)
+            elif opcode == "JUMP.EQ.0":
+                number = stack.top()
+                if number == 0:
+                    pc = label_tracker[program[pc]]
+                else:
+                    pc += 1
+            elif opcode == "JUMP.GT.0":
+                number = stack.top()
+                if number > 0:
+                    pc = label_tracker[program[pc]]
+                else:
+                    pc += 1
+            elif opcode == "JUMP.LT.0":
+                number = stack.top()
+                if number < 0:
+                    pc = label_tracker[program[pc]]
+                else:
+                    pc += 1
+            elif opcode == "ADD":
                 a = stack.pop()
-                heap.store(variable_name, a)
-            else:
-                return core.Error.message(core.Messages.E_ILLEG, pc-1, opcode)
-        elif opcode == "JUMP.EQ.0":
-            number = stack.top()
-            if number == 0:
-                pc = label_tracker[program[pc]]
-            else:
-                pc += 1
-        elif opcode == "JUMP.GT.0":
-            number = stack.top()
-            if number > 0:
-                pc = label_tracker[program[pc]]
-            else:
-                pc += 1
-        elif opcode == "JUMP.LT.0":
-            number = stack.top()
-            if number < 0:
-                pc = label_tracker[program[pc]]
-            else:
-                pc += 1
-        elif opcode == "ADD":
-            a = stack.pop()
-            b = stack.pop()
-            stack.push(a+b)
-        elif opcode == "SUB":
-            a = stack.pop()
-            b = stack.pop()
-            stack.push(b-a)
-        elif opcode == "MUL":
-            a = stack.pop()
-            b = stack.pop()
-            stack.push(a*b)
-        elif opcode == "DIV":
-            a = stack.pop()
-            if a == 0:
-                return core.Error.message(core.Messages.E_DIV0, pc-1, opcode)
-            b = stack.pop()
-            stack.push(b//a)
-        elif opcode == "PRINT":
-            string_literal = program[pc]
-            pc += 1
-            if "@#" in string_literal:
+                b = stack.pop()
+                stack.push(a+b)
+            elif opcode == "SUB":
                 a = stack.pop()
-                string_literal = string_literal.replace("@#", str(a))
-            print(string_literal)
-        elif opcode == "READ":
-            number = int(input())
-            stack.push(number)
-        else:
-            return core.Error.message(core.Messages.E_OPCOD, pc-1, opcode)
+                b = stack.pop()
+                stack.push(b-a)
+            elif opcode == "MUL":
+                a = stack.pop()
+                b = stack.pop()
+                stack.push(a*b)
+            elif opcode == "DIV":
+                a = stack.pop()
+                if a == 0:
+                    return core.Error.message(core.Messages.E_DIV0, pc-1, opcode)
+                b = stack.pop()
+                stack.push(b//a)
+            elif opcode == "PRINT":
+                string_literal = program[pc]
+                pc += 1
+                if "@#" in string_literal:
+                    a = stack.pop()
+                    string_literal = string_literal.replace("@#", str(a))
+                print(string_literal)
+            elif opcode == "READ":
+                number = int(input())
+                stack.push(number)
+            else:
+                return core.Error.message(core.Messages.E_OPCOD, pc-1, opcode)
+
+        except (KeyError):
+            message = core.Messages.E_NOVAR if opcode in ['POP', 'PUSH'] \
+                else core.Messages.E_NOLBL
+            opcode = opcode + ' ' + program[pc]
+            return core.Error.message(message, pc-1, opcode)
 
     return "OK"
 
