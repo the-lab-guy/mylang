@@ -15,10 +15,12 @@ def tokenise(program_filepath=None):
     program = []
     token_counter = 0
     label_tracker = {}
+    error_count = 0
 
-    for line in program_lines:
+    for index, line in enumerate(program_lines):
+        line_number = index + 1
         parts = line.split(" ")
-        opcode = parts[0]
+        opcode = str(parts[0])
 
         # check for empty line
         if opcode == "":
@@ -27,6 +29,10 @@ def tokenise(program_filepath=None):
         # check if its a label
         if opcode.endswith(":"):
             label_tracker[opcode[:-1]] = token_counter
+            if not opcode[:-1].isidentifier():
+                warning_msg = core.Error.message(core.Messages.E_ILLEG, token_counter, opcode)
+                print(f"{warning_msg} in line: {line_number} {line}")
+                error_count += 1
 
         # store opcode token
         program.append(opcode)
@@ -35,27 +41,34 @@ def tokenise(program_filepath=None):
         # handle each opcode
         if opcode == "PUSH":
             # expecting a number or a variable name
-            operand = str(parts[1])
-            if operand.isnumeric():
-                number = int(parts[1])
-                program.append(number)
-                token_counter += 1
-            elif operand[0].isalpha():
-                variable_name = operand
-                program.append(variable_name)
-                token_counter += 1
-            else:
-                print(f"Error: Illegal variable name [{operand}]")
-                quit()
+            try:
+                operand = str(parts[1])
+            except IndexError:
+                warning_msg = core.Error.message(core.Messages.E_MISS, token_counter, opcode)
+                print(f"{warning_msg} in line: {line_number} {line}")
+                error_count += 1
+                continue    # skip to next line
+            program.append(operand)
+            token_counter += 1
+            if not operand.isnumeric() and not operand.isidentifier():
+                warning_msg = core.Error.message(core.Messages.E_ILLEG, token_counter, operand)
+                print(f"{warning_msg} in line: {line_number} {line}")
+                error_count += 1
         elif opcode == "POP":
             # return value of an integer variable
-            variable_name = str(parts[1])
-            if variable_name[0].isalpha():
-                program.append(variable_name)
-                token_counter += 1
-            else:
-                print(f"Error: Illegal variable name [{variable_name}]")
-                quit()
+            try:
+                variable_name = str(parts[1])
+            except IndexError:
+                warning_msg = core.Error.message(core.Messages.E_MISS, token_counter, opcode)
+                print(f"{warning_msg} in line: {line_number} {line}")
+                error_count += 1
+                continue    # skip to next line
+            program.append(variable_name)
+            token_counter += 1
+            if not variable_name.isidentifier():
+                warning_msg = core.Error.message(core.Messages.E_ILLEG, token_counter, variable_name)
+                print(f"{warning_msg} in line: {line_number} {line}")
+                error_count += 1
         elif opcode == "PRINT":
             # parse string literal
             string_literal = ' '.join(parts[1:])[1:-1]
@@ -79,7 +92,7 @@ def tokenise(program_filepath=None):
             program.append(label)
             token_counter += 1
 
-    return program, label_tracker
+    return error_count, program, label_tracker
 
 
 #########################
@@ -102,23 +115,27 @@ def interpret(program=[], label_tracker={}) -> str:
         elif opcode == "PUSH":
             operand = str(program[pc])
             if operand.isnumeric():
-                number = program[pc]
+                number = int(program[pc])
                 pc += 1
                 stack.push(number)
-            elif operand[0].isalpha():
+            elif operand.isidentifier():
                 variable_name = program[pc]
                 pc += 1
-                stack.push(heap.fetch(variable_name))
+                try:
+                    stack.push(heap.fetch(variable_name))
+                except(KeyError):
+                    opcode = opcode + ' ' + variable_name
+                    return core.Error.message(core.Messages.E_NOVAR, pc-1, opcode)
             else:
-                return core.Error.message(core.Messages.E_NOVAR, pc-1, opcode)
+                return core.Error.message(core.Messages.E_ILLEG, pc-1, opcode)
         elif opcode == "POP":
-            variable_name = program[pc]
-            if variable_name[0].isalpha():
+            variable_name = str(program[pc])
+            if variable_name.isidentifier():
                 pc += 1
                 a = stack.pop()
                 heap.store(variable_name, a)
             else:
-                return core.Error.message(core.Messages.E_NOVAR, pc-1, opcode)
+                return core.Error.message(core.Messages.E_ILLEG, pc-1, opcode)
         elif opcode == "JUMP.EQ.0":
             number = stack.top()
             if number == 0:

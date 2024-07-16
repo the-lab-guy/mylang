@@ -10,9 +10,12 @@ print(f"source file: {program_filepath}")
 if user_action == '-r':
     # run program using interpreter
     print("[CMD] Parsing")
-    program, label_tracker = mlt.tokenise(program_filepath)
+    error_count, program, label_tracker = mlt.tokenise(program_filepath)
     print(program)
     print(label_tracker)
+    if error_count > 0:
+        print(f"Errors: {error_count}")
+        quit()
 
     print("[CMD] Interpreting")
     status = mlt.interpret(program, label_tracker)
