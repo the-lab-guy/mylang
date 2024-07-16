@@ -1,0 +1,26 @@
+PRINT "Stack operations test "
+PRINT
+
+PRINT "Pushing 1111 "
+PUSH 1111
+
+PRINT "Duplicating Top "
+DUP
+
+PRINT "Top: @# "
+
+PRINT "Pushing 2222 "
+PUSH 2222
+
+PRINT "Duplicating Top "
+DUP
+
+PRINT "New Top: @# "
+
+PRINT "Swapping top two values "
+SWAP
+
+PRINT "Top was: @# "
+PRINT "Second was: @# "
+
+HALT

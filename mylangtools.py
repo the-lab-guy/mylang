@@ -171,6 +171,13 @@ def interpret(program=[], label_tracker={}) -> str:
                     return core.Error.message(core.Messages.E_DIV0, pc-1, opcode)
                 b = stack.pop()
                 stack.push(b//a)
+            elif opcode == "DUP":
+                stack.push(stack.top())
+            elif opcode == "SWAP":
+                a = stack.pop()
+                b = stack.pop()
+                stack.push(a)
+                stack.push(b)
             elif opcode == "PRINT":
                 string_literal = program[pc]
                 pc += 1
@@ -296,6 +303,17 @@ def compile(program_filepath=None, program=[], string_literals=[],
             out.write(f"\tLEA rcx, {variable_name}\n")
             out.write(f"\tPOP rax\n")
             out.write(f"\tMOV [rcx], rax\n")
+        elif opcode == "DUP":
+            out.write(f"; -- {opcode} --\n")
+            out.write(f"\tPOP rax\n")
+            out.write(f"\tPUSH rax\n")
+            out.write(f"\tPUSH rax\n")
+        elif opcode == "SWAP":
+            out.write(f"; -- {opcode} --\n")
+            out.write(f"\tPOP rax\n")
+            out.write(f"\tPOP rcx\n")
+            out.write(f"\tPUSH rax\n")
+            out.write(f"\tPUSH rcx\n")
         elif opcode == "ADD":
             out.write(f"; -- {opcode} --\n")
             out.write(f"\tPOP rax\n")
