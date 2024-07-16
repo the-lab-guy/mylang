@@ -24,9 +24,13 @@ if user_action == '-r':
 elif user_action == '-c':
     # compile program to executable
     print("[CMD] Preprocessing")
-    program, label_tracker = mlt.tokenise(program_filepath)
+    error_count, program, label_tracker = mlt.tokenise(program_filepath)
     print(program)
+    if error_count > 0:
+        print(f"Errors: {error_count}")
+        quit()
 
+    print("[CMD] Precompiling")
     string_literals, variable_names = mlt.precompile(program)
     print(string_literals, variable_names)
 
