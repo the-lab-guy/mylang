@@ -61,13 +61,14 @@ class Error:
     
 
 class Messages(Enum):
-    M_OK       = "OK"
+    M_OK     = "OK"
     E_DIV0   = "Division by zero"
     E_NOLBL  = "Label name not found"
     E_NOVAR  = "Variable name not found"
     E_OPCOD  = "Unknown instruction"
     E_MISS   = "Missing parameter"
     E_TYPE   = "Incorrect parameter type"
+    E_ILLEG  = "Illegal identifier name"
     F_NUMB   = "%lld"
     F_STR    = "%s"
 
