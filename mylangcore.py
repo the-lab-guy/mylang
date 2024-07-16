@@ -9,14 +9,22 @@ class Stack:
     def push (self, number):
         self.sp += 1
         self.buf[self.sp] = number
+        #self._show()
 
     def pop (self):
         number = self.buf[self.sp]
         self.sp -= 1
+        #self._show()
         return number
 
     def top (self):
         return self.buf[self.sp]
+    
+    def _show (self):
+        print(self.buf[0:self.sp+1])
+
+    def _size (self):
+        return self.sp+1
 
 
 class Heap:
