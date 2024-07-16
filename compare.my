@@ -1,10 +1,11 @@
 PRINT "Enter an integer: "
 READ
 
+PRINT
 JUMP.EQ.0 Zero
-JUMP.LT.0 LessThan
-JUMP.GT.0 GreaterThan
-PRINT "Error! "
+JUMP.NE.0 NotZero
+
+PRINT "Error 1 "
 HALT
 
 Zero:
@@ -17,4 +18,13 @@ HALT
 
 GreaterThan:
 PRINT "Positive "
+HALT
+
+NotZero:
+PRINT "Not Zero "
+
+JUMP.LT.0 LessThan
+JUMP.GT.0 GreaterThan
+
+PRINT "Error 2 "
 HALT

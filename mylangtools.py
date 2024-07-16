@@ -76,6 +76,11 @@ def tokenise(program_filepath=None):
                 label = parts[1]
                 program.append(label)
                 token_counter += 1
+            elif opcode == "JUMP.NE.0":
+                # read label
+                label = parts[1]
+                program.append(label)
+                token_counter += 1
 
         except IndexError:
             warning_msg = core.Error.message(core.Messages.E_MISS, token_counter, opcode)
@@ -139,6 +144,12 @@ def interpret(program=[], label_tracker={}) -> str:
             elif opcode == "JUMP.LT.0":
                 number = stack.top()
                 if number < 0:
+                    pc = label_tracker[program[pc]]
+                else:
+                    pc += 1
+            elif opcode == "JUMP.NE.0":
+                number = stack.top()
+                if number != 0:
                     pc = label_tracker[program[pc]]
                 else:
                     pc += 1
@@ -353,6 +364,13 @@ def compile(program_filepath=None, program=[], string_literals=[],
             out.write(f"; -- {opcode} --\n")
             out.write(f"\tCMP qword [rsp], 0\n")
             out.write(f"\tJL {label}\n")
+        elif opcode == "JUMP.NE.0":
+            label = program[ip]
+            ip += 1
+
+            out.write(f"; -- {opcode} --\n")
+            out.write(f"\tCMP qword [rsp], 0\n")
+            out.write(f"\tJNE {label}\n")
         elif opcode == "HALT":
             out.write(f"; -- {opcode} --\n")
             out.write(f"\tJMP EXIT_LABEL\n")

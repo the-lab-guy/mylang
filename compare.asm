@@ -20,10 +20,13 @@ F_NUMB  db "%lld", 0
 F_STR   db "%s", 0
 
 string_literal_0 db "Enter an integer: ", 0
-string_literal_1 db "Error! ", 0
-string_literal_2 db "Zero ", 0
-string_literal_3 db "Negative ", 0
-string_literal_4 db "Positive ", 0
+string_literal_1 db "", 0
+string_literal_2 db "Error 1 ", 0
+string_literal_3 db "Zero ", 0
+string_literal_4 db "Negative ", 0
+string_literal_5 db "Positive ", 0
+string_literal_6 db "Not Zero ", 0
+string_literal_7 db "Error 2 ", 0
 
 ; -- Entry Point --
 section .text
@@ -50,25 +53,18 @@ main:
 	CALL scanf
 	ADD rsp, 32
 	PUSH qword [read_buffer]
-; -- JUMP.EQ.0 --
-	CMP qword [rsp], 0
-	JE Zero
-; -- JUMP.LT.0 --
-	CMP qword [rsp], 0
-	JL LessThan
-; -- JUMP.GT.0 --
-	CMP qword [rsp], 0
-	JG GreaterThan
 ; -- PRINT --
 	SUB rsp, 32
 	LEA rcx, string_literal_1
 	XOR eax, eax
 	CALL printf
 	ADD rsp, 32
-; -- HALT --
-	JMP EXIT_LABEL
-; -- Label --
-Zero:
+; -- JUMP.EQ.0 --
+	CMP qword [rsp], 0
+	JE Zero
+; -- JUMP.NE.0 --
+	CMP qword [rsp], 0
+	JNE NotZero
 ; -- PRINT --
 	SUB rsp, 32
 	LEA rcx, string_literal_2
@@ -78,7 +74,7 @@ Zero:
 ; -- HALT --
 	JMP EXIT_LABEL
 ; -- Label --
-LessThan:
+Zero:
 ; -- PRINT --
 	SUB rsp, 32
 	LEA rcx, string_literal_3
@@ -88,10 +84,42 @@ LessThan:
 ; -- HALT --
 	JMP EXIT_LABEL
 ; -- Label --
-GreaterThan:
+LessThan:
 ; -- PRINT --
 	SUB rsp, 32
 	LEA rcx, string_literal_4
+	XOR eax, eax
+	CALL printf
+	ADD rsp, 32
+; -- HALT --
+	JMP EXIT_LABEL
+; -- Label --
+GreaterThan:
+; -- PRINT --
+	SUB rsp, 32
+	LEA rcx, string_literal_5
+	XOR eax, eax
+	CALL printf
+	ADD rsp, 32
+; -- HALT --
+	JMP EXIT_LABEL
+; -- Label --
+NotZero:
+; -- PRINT --
+	SUB rsp, 32
+	LEA rcx, string_literal_6
+	XOR eax, eax
+	CALL printf
+	ADD rsp, 32
+; -- JUMP.LT.0 --
+	CMP qword [rsp], 0
+	JL LessThan
+; -- JUMP.GT.0 --
+	CMP qword [rsp], 0
+	JG GreaterThan
+; -- PRINT --
+	SUB rsp, 32
+	LEA rcx, string_literal_7
 	XOR eax, eax
 	CALL printf
 	ADD rsp, 32
