@@ -1,3 +1,4 @@
+PRINT "enter an integer"
 READ
 JUMP.EQ.0 L2
 JUMP.GT.0 L0

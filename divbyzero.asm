@@ -19,7 +19,8 @@ E_ILLEG db "Illegal identifier name", 0
 F_NUMB  db "%lld", 0
 F_STR   db "%s", 0
 
-string_literal_0 db "Hello World", 0
+string_literal_0 db "Divide by zero test ", 0
+string_literal_1 db "DIV = %lld ", 0
 
 ; -- Entry Point --
 section .text
@@ -31,16 +32,28 @@ extern scanf
 main:
 	PUSH rbp
 	MOV rbp, rsp
-; -- PUSH num --
-	PUSH 10
-; -- PUSH num --
-	PUSH 7
-; -- ADD --
-	POP rax
-	ADD qword [rsp], rax
 ; -- PRINT --
 	SUB rsp, 32
 	LEA rcx, string_literal_0
+	XOR eax, eax
+	CALL printf
+	ADD rsp, 32
+; -- PUSH num --
+	PUSH 10
+; -- PUSH num --
+	PUSH 0
+; -- DIV --
+	POP rcx
+	TEST rcx, rcx
+	JZ ERROR_LABEL
+	POP rax
+	CQO  ; sign extend rax into rdx:rax
+	IDIV rcx
+	PUSH rax
+; -- PRINT --
+	POP rdx
+	SUB rsp, 32
+	LEA rcx, string_literal_1
 	XOR eax, eax
 	CALL printf
 	ADD rsp, 32

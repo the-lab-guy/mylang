@@ -16,6 +16,7 @@ E_NOVAR db "Variable name not found", 0
 E_OPCOD db "Unknown instruction", 0
 E_MISS  db "Missing parameter", 0
 E_TYPE  db "Incorrect parameter type", 0
+E_ILLEG db "Illegal identifier name", 0
 F_NUMB  db "%lld", 0
 F_STR   db "%s", 0
 
@@ -51,6 +52,8 @@ main:
 	LEA rcx, my_int
 	POP rax
 	MOV [rcx], rax
+; -- Label --
+add_10:
 ; -- PUSH num --
 	PUSH 10
 ; -- PUSH var --

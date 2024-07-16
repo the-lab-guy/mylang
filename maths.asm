@@ -5,8 +5,8 @@ default rel
 ; -- variables --
 section .bss
 read_number resq 1  ; 64-bits integer = 8 bytes
-first_int resq 1  ; 64-bits integer = 8 bytes
 second_int resq 1  ; 64-bits integer = 8 bytes
+first_int resq 1  ; 64-bits integer = 8 bytes
 
 ; -- constants --
 section .data
