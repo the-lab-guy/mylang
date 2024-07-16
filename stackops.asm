@@ -19,17 +19,17 @@ E_ILLEG db "Illegal identifier name", 0
 F_NUMB  db "%lld", 0
 F_STR   db "%s", 0
 
-string_literal_0 db "Stack operations test ", 0
-string_literal_1 db "", 0
-string_literal_2 db "Pushing 1111 ", 0
-string_literal_3 db "Duplicating Top ", 0
-string_literal_4 db "Top: %lld ", 0
-string_literal_5 db "Pushing 2222 ", 0
-string_literal_6 db "Duplicating Top ", 0
-string_literal_7 db "New Top: %lld ", 0
-string_literal_8 db "Swapping top two values ", 0
-string_literal_9 db "Top was: %lld ", 0
-string_literal_10 db "Second was: %lld ", 0
+string_literal_0 db `\tStack operations test \n`, 0
+string_literal_1 db `\n`, 0
+string_literal_2 db `Pushing 1111 \n`, 0
+string_literal_3 db `Duplicating Top \n`, 0
+string_literal_4 db `\tTop: %lld \n`, 0
+string_literal_5 db `Pushing 2222 \n`, 0
+string_literal_6 db `Duplicating Top \n`, 0
+string_literal_7 db `\tNew Top: %lld \n`, 0
+string_literal_8 db `Swapping top two values \n`, 0
+string_literal_9 db `Top was: %lld  -  `, 0
+string_literal_10 db `Second was: %lld \n`, 0
 
 ; -- Entry Point --
 section .text

@@ -59,6 +59,8 @@ def tokenise(program_filepath=None):
             elif opcode == "PRINT":
                 # parse string literal
                 string_literal = ' '.join(parts[1:])[1:-1]
+                if len(string_literal) == 0:
+                    string_literal = "\\n"
                 program.append(string_literal)
                 token_counter += 1
             elif opcode == "JUMP.EQ.0":
@@ -179,12 +181,13 @@ def interpret(program=[], label_tracker={}) -> str:
                 stack.push(a)
                 stack.push(b)
             elif opcode == "PRINT":
-                string_literal = program[pc]
+                string_literal = program[pc]\
+                    .replace('\\n', '\n').replace('\\t', '\t')
                 pc += 1
                 if "@#" in string_literal:
                     a = stack.pop()
                     string_literal = string_literal.replace("@#", str(a))
-                print(string_literal)
+                print(string_literal, end='')
             elif opcode == "READ":
                 number = int(input())
                 stack.push(number)
@@ -254,13 +257,15 @@ def compile(program_filepath=None, program=[], string_literals=[],
     section .data
     """))
 
+    # language runtime messages
     for message in core.Messages:
         out.write(f"{message.name:7} db \"{message.value}\", 0\n")
 
     out.write("\n")  # insert a blank line
 
+    # source program literal strings
     for i, string_literal in enumerate(string_literals):
-        out.write(f"string_literal_{i} db \"{string_literal}\", 0\n")
+        out.write(f"string_literal_{i} db `{string_literal}`, 0\n")
 
     out.write(textwrap.dedent("""
     ; -- Entry Point --

@@ -1,26 +1,26 @@
-PRINT "Stack operations test "
+PRINT "\tStack operations test \n"
 PRINT
 
-PRINT "Pushing 1111 "
+PRINT "Pushing 1111 \n"
 PUSH 1111
 
-PRINT "Duplicating Top "
+PRINT "Duplicating Top \n"
 DUP
 
-PRINT "Top: @# "
+PRINT "\tTop: @# \n"
 
-PRINT "Pushing 2222 "
+PRINT "Pushing 2222 \n"
 PUSH 2222
 
-PRINT "Duplicating Top "
+PRINT "Duplicating Top \n"
 DUP
 
-PRINT "New Top: @# "
+PRINT "\tNew Top: @# \n"
 
-PRINT "Swapping top two values "
+PRINT "Swapping top two values \n"
 SWAP
 
-PRINT "Top was: @# "
-PRINT "Second was: @# "
+PRINT "Top was: @#  -  "
+PRINT "Second was: @# \n"
 
 HALT
