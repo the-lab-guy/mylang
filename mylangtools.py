@@ -38,59 +38,50 @@ def tokenise(program_filepath=None):
         program.append(opcode)
         token_counter += 1
 
-        # handle each opcode
-        if opcode == "PUSH":
-            # expecting a number or a variable name
-            try:
+        try:
+            # handle each opcode
+            if opcode == "PUSH":
                 operand = str(parts[1])
-            except IndexError:
-                warning_msg = core.Error.message(core.Messages.E_MISS, token_counter, opcode)
-                print(f"{warning_msg} in line: {line_number} {line}")
-                error_count += 1
-                continue    # skip to next line
-            program.append(operand)
-            token_counter += 1
-            if not operand.isnumeric() and not operand.isidentifier():
-                warning_msg = core.Error.message(core.Messages.E_ILLEG, token_counter, operand)
-                print(f"{warning_msg} in line: {line_number} {line}")
-                error_count += 1
-        elif opcode == "POP":
-            # return value of an integer variable
-            try:
+                program.append(operand)
+                token_counter += 1
+                if not operand.isnumeric() and not operand.isidentifier():
+                    warning_msg = core.Error.message(core.Messages.E_ILLEG, token_counter, operand)
+                    print(f"{warning_msg} in line: {line_number} {line}")
+                    error_count += 1
+            elif opcode == "POP":
                 variable_name = str(parts[1])
-            except IndexError:
-                warning_msg = core.Error.message(core.Messages.E_MISS, token_counter, opcode)
-                print(f"{warning_msg} in line: {line_number} {line}")
-                error_count += 1
-                continue    # skip to next line
-            program.append(variable_name)
-            token_counter += 1
-            if not variable_name.isidentifier():
-                warning_msg = core.Error.message(core.Messages.E_ILLEG, token_counter, variable_name)
-                print(f"{warning_msg} in line: {line_number} {line}")
-                error_count += 1
-        elif opcode == "PRINT":
-            # parse string literal
-            string_literal = ' '.join(parts[1:])[1:-1]
-            program.append(string_literal)
-            token_counter += 1
-        elif opcode == "JUMP.EQ.0":
-            # read label
-            label = parts[1]
-            #print(f"label={label}")
-            program.append(label)
-            #print(f"last token={program[:-1]}")
-            token_counter += 1
-        elif opcode == "JUMP.GT.0":
-            # read label
-            label = parts[1]
-            program.append(label)
-            token_counter += 1
-        elif opcode == "JUMP.LT.0":
-            # read label
-            label = parts[1]
-            program.append(label)
-            token_counter += 1
+                program.append(variable_name)
+                token_counter += 1
+                if not variable_name.isidentifier():
+                    warning_msg = core.Error.message(core.Messages.E_ILLEG, token_counter, variable_name)
+                    print(f"{warning_msg} in line: {line_number} {line}")
+                    error_count += 1
+            elif opcode == "PRINT":
+                # parse string literal
+                string_literal = ' '.join(parts[1:])[1:-1]
+                program.append(string_literal)
+                token_counter += 1
+            elif opcode == "JUMP.EQ.0":
+                # read label
+                label = parts[1]
+                program.append(label)
+                token_counter += 1
+            elif opcode == "JUMP.GT.0":
+                # read label
+                label = parts[1]
+                program.append(label)
+                token_counter += 1
+            elif opcode == "JUMP.LT.0":
+                # read label
+                label = parts[1]
+                program.append(label)
+                token_counter += 1
+
+        except IndexError:
+            warning_msg = core.Error.message(core.Messages.E_MISS, token_counter, opcode)
+            print(f"{warning_msg} in line: {line_number} {line}")
+            error_count += 1
+            continue    # skip to next line
 
     return error_count, program, label_tracker
 
