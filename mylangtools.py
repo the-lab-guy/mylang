@@ -1,6 +1,85 @@
 import mylangcore as core
 import textwrap
 
+
+def isnamechar(char:chr) -> bool:
+    return char.isalnum() or char == '_'
+
+def iswhitespace(char:chr) -> bool:
+    return char in " \t \n"
+
+def issinglesymbol(char:chr) -> bool:
+    return char in "()*/^"
+
+def isanysymbol(char:chr) -> bool:
+    return (char in "+-=") or (issinglesymbol(char))
+
+def isseparator(char:chr) -> bool:
+    return not isnamechar(char)
+    #return (iswhitespace(char) or issymbol(char))
+
+
+########################
+#   Lexical Analysis
+########################
+
+def lexer(text_line:str="") -> list:
+
+    # walk the single line of source text and scan for lexemes
+    lexemes = []
+    lexeme = ""
+
+    source = text_line.lstrip()   # remove leading spaces
+
+    for index in range(len(source)):
+        char = source[index]
+        # skip multiple space chars
+        if (iswhitespace(char)):
+            if len(lexeme) > 0:
+                lexemes.append(lexeme)
+                lexeme = ""
+            print(f"[{lexeme}] - was a space '{char}'")
+        elif issinglesymbol(char):
+            if len(lexeme) > 0:
+                lexemes.append(lexeme)
+                lexeme = ""
+            lexeme = char
+            lexemes.append(lexeme)
+            lexeme = ""
+            print(f"[{lexeme}] - symbol '{char}'")
+        elif (isanysymbol(char)):
+            if lexeme == char:   # second valid multi symbol
+                lexeme = lexeme + char
+                lexemes.append(lexeme)
+                lexeme = ""
+            else:
+                if len(lexeme) > 0:   # first valid multi symbol
+                    lexemes.append(lexeme)
+                    lexeme = ""
+                lexeme = char
+
+            print(f"[{lexeme}] - multi symbol '{char}'")
+        elif (isnamechar(char)):
+            if len(lexeme) > 0:
+                if isseparator(lexeme[-1]):
+                    print(f"found separator [{lexeme[-1]}]")
+                    lexemes.append(lexeme)
+                    lexeme = ""
+            lexeme = lexeme + char
+            print(f"[{lexeme}] - normal '{char}'")
+        else:   # must be illegal character
+            if len(lexeme) > 0:
+                lexemes.append(lexeme)
+            lexeme = char
+            print(f"[{lexeme}] - separator '{char}' - [{lexemes}]")
+
+    # save last lexeme collected
+    lexemes.append(lexeme)
+    print(f"[{lexemes}] [{len(lexemes)}] - final list")
+    #quit()
+    return lexemes
+
+
 ########################
 #   Tokenise Program
 ########################
@@ -19,12 +98,33 @@ def tokenise(program_filepath=None):
 
     for index, line in enumerate(program_lines):
         line_number = index + 1
-        parts = line.split(" ")
+        #parts = line.split(" ")
+        #print(lexer(line))
+        parts = lexer(line)
+
         opcode = str(parts[0])
 
         # check for empty line
         if opcode == "":
             continue
+
+        # check if a simple expression
+        # do brackets
+        # Todo
+        
+        # do exponents
+        ops = "^"
+        expr = core.Expression.tokenise_expression(ops, parts)
+
+        # do multiply and divide
+        ops = "*/"
+        expr = core.Expression.tokenise_expression(ops, expr)
+
+        # do add and subtract
+        ops = "+-"
+        expr = core.Expression.tokenise_expression(ops, expr)
+        print(f"Evaluation returned: {expr[0].evaluate()}")
+        quit()
 
         # check if its a label
         if opcode.endswith(":"):
@@ -33,7 +133,7 @@ def tokenise(program_filepath=None):
                 warning_msg = core.Error.message(core.Messages.E_ILLEG, token_counter, opcode)
                 print(f"{warning_msg} in line: {line_number} {line}")
                 error_count += 1
-
+           
         # store opcode token
         program.append(opcode)
         token_counter += 1
@@ -108,6 +208,10 @@ def interpret(program=[], label_tracker={}) -> str:
         pc += 1
 
         try:
+            if isinstance(opcode, core.Expression):
+                opcode._print()
+                continue
+
             # skip if its a label
             if opcode.endswith(":"):
                 continue
