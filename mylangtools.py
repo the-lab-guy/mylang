@@ -3,7 +3,7 @@ import textwrap
 
 
 def isnamechar(char:chr) -> bool:
-    return char.isalnum() or char == '_'
+    return char.isalnum() or char == '_' or char == ':'
 
 def iswhitespace(char:chr) -> bool:
     return char in " \t \n"
@@ -73,9 +73,10 @@ def lexer(text_line:str="") -> list:
             lexeme = char
             print(f"[{lexeme}] - separator '{char}' - [{lexemes}]")
 
-    # save last lexeme collected
-    lexemes.append(lexeme)
-    print(f"[{lexemes}] [{len(lexemes)}] - final list")
+    # save last lexeme if any chars collected
+    if len(lexeme) > 0:
+        lexemes.append(lexeme)
+    print(f"[{lexemes}] [{len(lexemes)}] - final lexeme list")
     #quit()
     return lexemes
 
@@ -100,31 +101,17 @@ def tokenise(program_filepath=None):
         line_number = index + 1
         #parts = line.split(" ")
         #print(lexer(line))
-        parts = lexer(line)
+        if line == "":
+            continue
 
+        parts = lexer(line)
+        print(f"line='{line}'")
+        print(f"parts={parts}")
         opcode = str(parts[0])
 
         # check for empty line
         if opcode == "":
             continue
-
-        # check if a simple expression
-        # do brackets
-        # Todo
-        
-        # do exponents
-        ops = "^"
-        expr = core.Expression.tokenise_expression(ops, parts)
-
-        # do multiply and divide
-        ops = "*/"
-        expr = core.Expression.tokenise_expression(ops, expr)
-
-        # do add and subtract
-        ops = "+-"
-        expr = core.Expression.tokenise_expression(ops, expr)
-        print(f"Evaluation returned: {expr[0].evaluate()}")
-        quit()
 
         # check if its a label
         if opcode.endswith(":"):
@@ -133,7 +120,34 @@ def tokenise(program_filepath=None):
                 warning_msg = core.Error.message(core.Messages.E_ILLEG, token_counter, opcode)
                 print(f"{warning_msg} in line: {line_number} {line}")
                 error_count += 1
+            program.append(opcode)
+            token_counter += 1
+            continue
            
+        # check if a simple expression
+        expr = parts
+        # do brackets
+        openers = "("
+        closers = ")"
+        expr = core.Expression.parenthesise_expression(openers, closers, expr)
+
+        # do exponents
+        ops = "^"
+        expr = core.Expression.tokenise_expression(ops, expr)
+
+        # do multiply and divide
+        ops = "*/"
+        expr = core.Expression.tokenise_expression(ops, expr)
+
+        # do add and subtract
+        ops = "+-"
+        expr = core.Expression.tokenise_expression(ops, expr)
+        if isinstance(expr[0], core.Expression):
+            #print(f"Evaluation returned: {expr[0].evaluate()}")
+            program.append(expr[0])
+            token_counter += 1
+            continue
+
         # store opcode token
         program.append(opcode)
         token_counter += 1
@@ -209,7 +223,7 @@ def interpret(program=[], label_tracker={}) -> str:
 
         try:
             if isinstance(opcode, core.Expression):
-                opcode._print()
+                print(opcode.evaluate())
                 continue
 
             # skip if its a label

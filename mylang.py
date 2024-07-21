@@ -11,8 +11,8 @@ if user_action == '-r':
     # run program using interpreter
     print("[CMD] Parsing")
     error_count, program, label_tracker = mlt.tokenise(program_filepath)
-    print(program)
-    print(label_tracker)
+    print(f"program:{program}")
+    print(f"labels:{label_tracker}")
     if error_count > 0:
         print(f"Errors: {error_count}")
         quit()
