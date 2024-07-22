@@ -229,12 +229,12 @@ def interpret(program=[], label_tracker={}) -> str:
         pc += 1
 
         try:
+            # handle Expression first because its not a string
             if isinstance(opcode, core.Expression):
-                print(opcode.evaluate())
+                stack.push(float(opcode.evaluate()))
                 continue
-
             # skip if its a label
-            if opcode.endswith(":"):
+            elif opcode.endswith(":"):
                 continue
             elif opcode == "PUSH":
                 operand = str(program[pc])
@@ -249,7 +249,7 @@ def interpret(program=[], label_tracker={}) -> str:
                 elif isinstance(program[pc], core.Expression):
                     expression = program[pc]
                     pc += 1
-                    stack.push(int(expression.evaluate()))
+                    stack.push(float(expression.evaluate()))
                 else:
                     return core.Error.message(core.Messages.E_ILLEG, pc-1, opcode)
             elif opcode == "POP":

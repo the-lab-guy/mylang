@@ -1,5 +1,16 @@
 4 * ((3 + 4) / 2) - 1
+DUP
+PRINT " @# "
+PRINT
+
 2 / 1 * 24 - 2 ^ 4
+DUP
+PRINT " @# "
+PRINT
+
+ADD
+PRINT " @# "
+PRINT
 
 TEST_LABEL:
 PUSH 33
