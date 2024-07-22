@@ -124,27 +124,11 @@ def tokenise(program_filepath=None):
             token_counter += 1
             continue
            
-        # check if a simple expression
-        expr = parts
-        # do brackets
-        openers = "("
-        closers = ")"
-        expr = core.Expression.parenthesise_expression(openers, closers, expr)
-
-        # do exponents
-        ops = "^"
-        expr = core.Expression.tokenise_expression(ops, expr)
-
-        # do multiply and divide
-        ops = "*/"
-        expr = core.Expression.tokenise_expression(ops, expr)
-
-        # do add and subtract
-        ops = "+-"
-        expr = core.Expression.tokenise_expression(ops, expr)
-        if isinstance(expr[0], core.Expression):
-            #print(f"Evaluation returned: {expr[0].evaluate()}")
-            program.append(expr[0])
+        # check if the line is a simple expression to be evaluated
+        expr = core.Expression.parse_expression(parts)
+        if not (expr is None):
+            #print(f"Evaluation returned: {expr.evaluate()}")
+            program.append(expr)
             token_counter += 1
             continue
 

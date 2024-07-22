@@ -81,7 +81,6 @@ class Expression:
     def parenthesise_expression(openers:str, closers:str, token_list:list) -> list:
         right_side = token_list
         left_side = []
-        skip_parts = 0
         ops = openers + closers
 
         print(f"received right_side token_list: {right_side}")
@@ -112,6 +111,27 @@ class Expression:
         
         return left_side
 
+
+    # check if a simple expression
+    def parse_expression(expr:list):   # returns an Expression object
+        # do brackets
+        openers = "("
+        closers = ")"
+        expr = Expression.parenthesise_expression(openers, closers, expr)
+
+        # do exponents
+        expr = Expression.tokenise_expression('^', expr)
+
+        # do multiply and divide
+        expr = Expression.tokenise_expression('*/', expr)
+
+        # do add and subtract
+        expr = Expression.tokenise_expression('+-', expr)
+
+        if isinstance(expr[0], Expression):
+            return expr[0]
+        else:
+            return None
 
 
     def __init__(self, left, operator, right):
