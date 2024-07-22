@@ -26,6 +26,14 @@ PRINT
   34 / 7
 33 -   100
 
+2^(3+2)
+PRINT " @# "
+PRINT
+
+26 ^ 4
+PRINT " @# "
+PRINT
+
 HALT
 
 num=(10 +  (20-15)) * 2^2
