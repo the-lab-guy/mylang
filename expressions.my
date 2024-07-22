@@ -3,9 +3,11 @@
 
 TEST_LABEL:
 PUSH 33
-PUSH 22
+PUSH 9 * 3
+DUP
+PRINT "CODE: 33 + @# ="
 ADD
-PRINT "CODE: 33 + 22 = @#"
+PRINT " @# "
 PRINT
 
  99+  1 

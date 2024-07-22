@@ -201,6 +201,7 @@ class Messages(Enum):
     E_MISS   = "Missing parameter"
     E_TYPE   = "Incorrect parameter type"
     E_ILLEG  = "Illegal identifier name"
+    E_EXPR   = "Invalid expression syntax"
     F_NUMB   = "%lld"
     F_STR    = "%s"
 

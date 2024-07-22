@@ -28,13 +28,29 @@ def lexer(text_line:str="") -> list:
     # walk the single line of source text and scan for lexemes
     lexemes = []
     lexeme = ""
+    in_quoted_string = False
 
     source = text_line.lstrip()   # remove leading spaces
 
     for index in range(len(source)):
         char = source[index]
+        
+        if char == '"':    # double quote chr(34)
+            if in_quoted_string == False:
+                in_quoted_string = True
+                lexeme = char
+                continue
+            else:
+                in_quoted_string = False
+                lexeme = lexeme + char
+                lexemes.append(lexeme)
+                lexeme = ""
+                continue
+
+        if in_quoted_string == True:
+            lexeme = lexeme + char
+        elif (iswhitespace(char)):
         # skip multiple space chars
-        if (iswhitespace(char)):
             if len(lexeme) > 0:
                 lexemes.append(lexeme)
                 lexeme = ""
@@ -139,13 +155,20 @@ def tokenise(program_filepath=None):
         try:
             # handle each opcode
             if opcode == "PUSH":
-                operand = str(parts[1])
+                if len(parts) > 2:
+                    operand = core.Expression.parse_expression(parts[1:])
+                    if operand is None:
+                        warning_msg = core.Error.message(core.Messages.E_EXPR, token_counter, str(operand))
+                        print(f"{warning_msg} in line: {line_number} {line}")
+                        error_count += 1
+                else:
+                    operand = str(parts[1])
+                    if not operand.isnumeric() and not operand.isidentifier():
+                        warning_msg = core.Error.message(core.Messages.E_ILLEG, token_counter, operand)
+                        print(f"{warning_msg} in line: {line_number} {line}")
+                        error_count += 1
                 program.append(operand)
                 token_counter += 1
-                if not operand.isnumeric() and not operand.isidentifier():
-                    warning_msg = core.Error.message(core.Messages.E_ILLEG, token_counter, operand)
-                    print(f"{warning_msg} in line: {line_number} {line}")
-                    error_count += 1
             elif opcode == "POP":
                 variable_name = str(parts[1])
                 program.append(variable_name)
@@ -156,7 +179,7 @@ def tokenise(program_filepath=None):
                     error_count += 1
             elif opcode == "PRINT":
                 # parse string literal
-                string_literal = ' '.join(parts[1:])[1:-1]
+                string_literal = '_'.join(parts[1:])[1:-1]
                 if len(string_literal) == 0:
                     string_literal = "\\n"
                 program.append(string_literal)
@@ -223,6 +246,10 @@ def interpret(program=[], label_tracker={}) -> str:
                     variable_name = program[pc]
                     pc += 1
                     stack.push(heap.fetch(variable_name))
+                elif isinstance(program[pc], core.Expression):
+                    expression = program[pc]
+                    pc += 1
+                    stack.push(int(expression.evaluate()))
                 else:
                     return core.Error.message(core.Messages.E_ILLEG, pc-1, opcode)
             elif opcode == "POP":
