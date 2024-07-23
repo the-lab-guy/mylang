@@ -139,6 +139,16 @@ class Expression:
         self.operator = operator
         self.right = right
 
+    def __str__(self):
+        return f"({self.left} {self.operator} {self.right})"
+    
+    def __repr__(self):
+        self.left_repr = repr(self.left) if type(self.left) is Expression else self.left
+        self.operator_repr = repr(self.operator) if type(self.operator) is Expression else self.operator
+        self.right_repr = repr(self.right) if type(self.right) is Expression else self.right
+
+        return f"{self.left_repr} {self.right_repr} {self.operator_repr} "
+
     def add_operator(self, operator):
         self.operator = str(operator)
     

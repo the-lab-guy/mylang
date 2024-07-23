@@ -414,6 +414,13 @@ def compile(program_filepath=None, program=[], string_literals=[],
         opcode = program[ip]
         ip += 1
 
+        # handle Expression first because its not a string
+        if isinstance(opcode, core.Expression):
+            out.write(f"; -- Expression --\n")
+            out.write(f"; {opcode}\n")
+            out.write(f"; {repr(opcode)}\n")
+            continue
+
         if opcode.endswith(":"):
             out.write(f"; -- Label --\n")
             out.write(f"{opcode}\n")
