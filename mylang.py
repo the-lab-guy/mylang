@@ -25,14 +25,16 @@ elif user_action == '-c':
     # compile program to executable
     print("[CMD] Preprocessing")
     error_count, program, label_tracker = mlt.tokenise(program_filepath)
-    print(program)
+    print(f"program:{program}")
+    print(f"labels:{label_tracker}")
     if error_count > 0:
         print(f"Errors: {error_count}")
         quit()
 
     print("[CMD] Precompiling")
     string_literals, variable_names = mlt.precompile(program)
-    print(string_literals, variable_names)
+    print(f"string literals:{string_literals}")
+    print(f"variables names:{variable_names}")
 
     print("[CMD] Compiling")
     status, asm_filepath = mlt.compile(program_filepath, program, string_literals,
