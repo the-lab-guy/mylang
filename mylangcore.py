@@ -214,6 +214,7 @@ class Messages(Enum):
     E_EXPR   = "Invalid expression syntax"
     F_NUMB   = "%lld"
     F_STR    = "%s"
+    F_FLOAT  = "%f"
 
 
 if __name__ == "__main__":

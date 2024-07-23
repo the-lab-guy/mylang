@@ -342,6 +342,7 @@ def precompile(program):
         if program[ip] == "PRINT":
             string_literal = program[ip+1]
             string_literal = string_literal.replace("@#", core.Messages.F_NUMB.value)
+            string_literal = string_literal.replace("@$", core.Messages.F_FLOAT.value)
             program[ip+1] = len(string_literals)
             string_literals.append(string_literal)
 
@@ -403,6 +404,7 @@ def compile(program_filepath=None, program=[], string_literals=[],
     extern ExitProcess
     extern printf
     extern scanf
+    extern pow
             
     main:
     \tPUSH rbp
@@ -419,6 +421,28 @@ def compile(program_filepath=None, program=[], string_literals=[],
             out.write(f"; -- Expression --\n")
             out.write(f"; {opcode}\n")
             out.write(f"; {repr(opcode)}\n")
+            params = repr(opcode).split()
+            # test assembly output
+            out.write(f"\tMOV rax, __?float64?__({float(params[0])})\n")
+            out.write(f"\tMOVQ xmm0, rax\n")
+
+            out.write(f"\tMOV rax, __?float64?__({float(params[1])})\n")
+            out.write(f"\tMOVQ xmm1, rax\n")
+
+            if params[2] == '+':
+                fp_instr = "ADDSD xmm0, xmm1"
+            elif params[2] == '-':
+                fp_instr = "SUBSD xmm0, xmm1"
+            elif params[2] == '*':
+                fp_instr = "MULSD xmm0, xmm1"
+            elif params[2] == '/':
+                fp_instr = "DIVSD xmm0, xmm1"
+            elif params[2] == '^':
+                fp_instr = "call pow"
+
+            out.write(f"\t{fp_instr}\n")
+            out.write(f"\tMOVQ rax, xmm0\n")
+            out.write(f"\tPUSH rax\n")
             continue
 
         if opcode.endswith(":"):
@@ -482,7 +506,9 @@ def compile(program_filepath=None, program=[], string_literals=[],
             string_literal_index = program[ip]
             ip += 1
             out.write(f"; -- {opcode} --\n")
-            if "%lld" in string_literals[string_literal_index]:
+            if core.Messages.F_NUMB.value in string_literals[string_literal_index]:
+                out.write(f"\tPOP rdx\n")  # value to print
+            elif core.Messages.F_FLOAT.value in string_literals[string_literal_index]:
                 out.write(f"\tPOP rdx\n")  # value to print
 
             out.write(f"\tSUB rsp, 32\n")
