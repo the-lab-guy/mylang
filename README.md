@@ -61,7 +61,8 @@ In both cases, the result of evaluating the expression will be placed on the top
 
 A valid expression _must_ consist of at least three elements, the _left_hand_term_, the _operation_, and the _right_hand_term_. Parentheses are optional.  
 
-#### Some examples of expressions 
+### Some examples of expressions
+
 `4 * ((3 + 4) / 2) - 1`
 
 `PUSH 9 * 3`
