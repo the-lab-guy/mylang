@@ -51,10 +51,9 @@ The use of simple mathematical expressions are supported in the language. The fo
 - `/` division, e.g. 8/2 is equivalent to 4
 - `+` addition, e.g. 3+4 is equivalent to 7
 - `-` subtraction, e.g. 7-3 is equivalent to 4
-- `( )` parentheses to increase the precedence (or order) of operations,   
-e.g. 2 * (3 + 1) is equivalent to 2 * 4, or 8  
-whereas, without parentheses we get  
-2 * 3 + 1 being equivalent to 6 + 1, or 7
+- `( )` parentheses to increase the precedence (or order) of operations,
+	+ e.g. 2 * (3 + 1) is equivalent to 2 * 4, or 8. Whereas, without parentheses  
+	we get 2 * 3 + 1 being equivalent to 6 + 1, or 7
 
 An expression may be entered on its own on a single line in the program, or it may be passed as a parameter to the PUSH instruction.
 In both cases, the result of evaluating the expression will be placed on the top of the stack, ready for use in the program.
