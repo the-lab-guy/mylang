@@ -316,6 +316,9 @@ def interpret(program=[], label_tracker={}) -> str:
                 if "@#" in string_literal:
                     a = stack.pop()
                     string_literal = string_literal.replace("@#", str(a))
+                elif "@$" in string_literal:
+                    a = stack.pop()
+                    string_literal = string_literal.replace("@$", str(a))
                 print(string_literal, end='')
             elif opcode == "READ":
                 number = int(input())
@@ -419,31 +422,8 @@ def compile(program_filepath=None, program=[], string_literals=[],
         # handle Expression first because its not a string
         if isinstance(opcode, core.Expression):
             out.write(f"; -- Expression --\n")
-            out.write(f"; {opcode}\n")
-            out.write(f"; {repr(opcode)}\n")
-            params = repr(opcode).split()
-            # test assembly output
-            out.write(f"\tMOV rax, __?float64?__({float(params[0])})\n")
-            out.write(f"\tMOVQ xmm0, rax\n")
-
-            out.write(f"\tMOV rax, __?float64?__({float(params[1])})\n")
-            out.write(f"\tMOVQ xmm1, rax\n")
-
-            if params[2] == '+':
-                fp_instr = "ADDSD xmm0, xmm1"
-            elif params[2] == '-':
-                fp_instr = "SUBSD xmm0, xmm1"
-            elif params[2] == '*':
-                fp_instr = "MULSD xmm0, xmm1"
-            elif params[2] == '/':
-                fp_instr = "DIVSD xmm0, xmm1"
-            elif params[2] == '^':
-                fp_instr = "call pow"
-
-            out.write(f"\t{fp_instr}\n")
-            out.write(f"\tMOVQ rax, xmm0\n")
-            out.write(f"\tPUSH rax\n")
-            continue
+            libs_math(opcode, out)
+            continue    # get next program opcode
 
         if opcode.endswith(":"):
             out.write(f"; -- Label --\n")
@@ -452,8 +432,12 @@ def compile(program_filepath=None, program=[], string_literals=[],
             operand = program[ip]
             ip += 1
             
+            # handle Expression first because its not a string
+            if isinstance(operand, core.Expression):
+                out.write(f"; -- {opcode} expr --\n")
+                libs_math(operand, out)
             # number or variable?
-            if operand not in variable_names:
+            elif operand not in variable_names:
                 out.write(f"; -- {opcode} num --\n")
                 out.write(f"\tPUSH {operand}\n")
             else:
@@ -577,6 +561,40 @@ def compile(program_filepath=None, program=[], string_literals=[],
 
     out.close()
     return "OK", asm_filepath
+
+
+def libs_math(opcode:core.Expression, out) -> None:
+    out.write(f"; {opcode}\n")
+    out.write(f"; {repr(opcode)}\n")
+    params = repr(opcode).split()
+    # test assembly output
+    for param in params:
+        if core.Check.is_float(param):
+            out.write(f"\tMOV rax, __?float64?__({float(param)})\n")
+            out.write(f"\tPUSH rax\n")
+            continue
+
+        if param in ("^*/+-"):
+            out.write(f"\tPOP rax\n")
+            out.write(f"\tMOVQ xmm1, rax\n")
+            out.write(f"\tPOP rax\n")
+            out.write(f"\tMOVQ xmm0, rax\n")
+
+        if param == '+':
+            out.write(f"\tADDSD xmm0, xmm1\n")
+        elif param == '-':
+            out.write(f"\tSUBSD xmm0, xmm1\n")
+        elif param == '*':
+            out.write(f"\tMULSD xmm0, xmm1\n")
+        elif param == '/':
+            out.write(f"\tDIVSD xmm0, xmm1\n")
+        elif param == '^':
+            out.write(f"\tSUB rsp, 32\n")
+            out.write(f"\tcall pow\n")
+            out.write(f"\tADD rsp, 32\n")
+
+        out.write(f"\tMOVQ rax, xmm0\n")
+        out.write(f"\tPUSH rax\n")
 
 if __name__ == "__main__":
     print("Mylang tools library")

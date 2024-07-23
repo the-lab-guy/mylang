@@ -1,4 +1,13 @@
-2 ^ 3
+10^(3+2)-6*5/3
 PRINT " @$ "
 PRINT
+
+2 ^ 3 / 4
+PRINT " @$ "
+PRINT
+
+4 * ((3 + 4) / 2) - 1
+PRINT " @$ "
+PRINT
+
 HALT

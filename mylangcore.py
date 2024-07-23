@@ -217,5 +217,27 @@ class Messages(Enum):
     F_FLOAT  = "%f"
 
 
+class Check():
+    def is_float(item: any) -> bool:
+        if item is None:
+            return False
+        try:
+            float(item)
+            return True
+        except ValueError:
+            return False
+
+    def is_integer(item: any) -> bool:
+        if item is None:
+            return False
+        try:
+            int(item)
+            return True
+        except ValueError:
+            return False
+
+
+
+
 if __name__ == "__main__":
     print("Mylang core objects library")

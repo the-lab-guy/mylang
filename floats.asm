@@ -23,6 +23,10 @@ F_FLOAT db "%f", 0
 
 string_literal_0 db ` %f `, 0
 string_literal_1 db `\n`, 0
+string_literal_2 db ` %f `, 0
+string_literal_3 db `\n`, 0
+string_literal_4 db ` %f `, 0
+string_literal_5 db `\n`, 0
 
 ; -- Entry Point --
 section .text
@@ -36,13 +40,53 @@ main:
 	PUSH rbp
 	MOV rbp, rsp
 ; -- Expression --
-; (2 ^ 3)
-; 2 3 ^ 
-	MOV rax, __?float64?__(2.0)
-	MOVQ xmm0, rax
+; ((10 ^ (3 + 2)) - ((6 * 5) / 3))
+; 10 3 2 +  ^  6 5 *  3 /  - 
+	MOV rax, __?float64?__(10.0)
+	PUSH rax
 	MOV rax, __?float64?__(3.0)
+	PUSH rax
+	MOV rax, __?float64?__(2.0)
+	PUSH rax
+	POP rax
 	MOVQ xmm1, rax
+	POP rax
+	MOVQ xmm0, rax
+	ADDSD xmm0, xmm1
+	MOVQ rax, xmm0
+	PUSH rax
+	POP rax
+	MOVQ xmm1, rax
+	POP rax
+	MOVQ xmm0, rax
 	call pow
+	MOVQ rax, xmm0
+	PUSH rax
+	MOV rax, __?float64?__(6.0)
+	PUSH rax
+	MOV rax, __?float64?__(5.0)
+	PUSH rax
+	POP rax
+	MOVQ xmm1, rax
+	POP rax
+	MOVQ xmm0, rax
+	MULSD xmm0, xmm1
+	MOVQ rax, xmm0
+	PUSH rax
+	MOV rax, __?float64?__(3.0)
+	PUSH rax
+	POP rax
+	MOVQ xmm1, rax
+	POP rax
+	MOVQ xmm0, rax
+	DIVSD xmm0, xmm1
+	MOVQ rax, xmm0
+	PUSH rax
+	POP rax
+	MOVQ xmm1, rax
+	POP rax
+	MOVQ xmm0, rax
+	SUBSD xmm0, xmm1
 	MOVQ rax, xmm0
 	PUSH rax
 ; -- PRINT --
@@ -55,6 +99,96 @@ main:
 ; -- PRINT --
 	SUB rsp, 32
 	LEA rcx, string_literal_1
+	XOR eax, eax
+	CALL printf
+	ADD rsp, 32
+; -- Expression --
+; ((2 ^ 3) / 4)
+; 2 3 ^  4 / 
+	MOV rax, __?float64?__(2.0)
+	PUSH rax
+	MOV rax, __?float64?__(3.0)
+	PUSH rax
+	POP rax
+	MOVQ xmm1, rax
+	POP rax
+	MOVQ xmm0, rax
+	call pow
+	MOVQ rax, xmm0
+	PUSH rax
+	MOV rax, __?float64?__(4.0)
+	PUSH rax
+	POP rax
+	MOVQ xmm1, rax
+	POP rax
+	MOVQ xmm0, rax
+	DIVSD xmm0, xmm1
+	MOVQ rax, xmm0
+	PUSH rax
+; -- PRINT --
+	POP rdx
+	SUB rsp, 32
+	LEA rcx, string_literal_2
+	XOR eax, eax
+	CALL printf
+	ADD rsp, 32
+; -- PRINT --
+	SUB rsp, 32
+	LEA rcx, string_literal_3
+	XOR eax, eax
+	CALL printf
+	ADD rsp, 32
+; -- Expression --
+; ((4 * ((3 + 4) / 2)) - 1)
+; 4 3 4 +  2 /  *  1 - 
+	MOV rax, __?float64?__(4.0)
+	PUSH rax
+	MOV rax, __?float64?__(3.0)
+	PUSH rax
+	MOV rax, __?float64?__(4.0)
+	PUSH rax
+	POP rax
+	MOVQ xmm1, rax
+	POP rax
+	MOVQ xmm0, rax
+	ADDSD xmm0, xmm1
+	MOVQ rax, xmm0
+	PUSH rax
+	MOV rax, __?float64?__(2.0)
+	PUSH rax
+	POP rax
+	MOVQ xmm1, rax
+	POP rax
+	MOVQ xmm0, rax
+	DIVSD xmm0, xmm1
+	MOVQ rax, xmm0
+	PUSH rax
+	POP rax
+	MOVQ xmm1, rax
+	POP rax
+	MOVQ xmm0, rax
+	MULSD xmm0, xmm1
+	MOVQ rax, xmm0
+	PUSH rax
+	MOV rax, __?float64?__(1.0)
+	PUSH rax
+	POP rax
+	MOVQ xmm1, rax
+	POP rax
+	MOVQ xmm0, rax
+	SUBSD xmm0, xmm1
+	MOVQ rax, xmm0
+	PUSH rax
+; -- PRINT --
+	POP rdx
+	SUB rsp, 32
+	LEA rcx, string_literal_4
+	XOR eax, eax
+	CALL printf
+	ADD rsp, 32
+; -- PRINT --
+	SUB rsp, 32
+	LEA rcx, string_literal_5
 	XOR eax, eax
 	CALL printf
 	ADD rsp, 32
