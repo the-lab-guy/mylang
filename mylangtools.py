@@ -422,7 +422,7 @@ def compile(program_filepath=None, program=[], string_literals=[],
         # handle Expression first because its not a string
         if isinstance(opcode, core.Expression):
             out.write(f"; -- Expression --\n")
-            libs_math(opcode, out)
+            rpn_to_x64(opcode, out)
             continue    # get next program opcode
 
         if opcode.endswith(":"):
@@ -435,7 +435,7 @@ def compile(program_filepath=None, program=[], string_literals=[],
             # handle Expression first because its not a string
             if isinstance(operand, core.Expression):
                 out.write(f"; -- {opcode} expr --\n")
-                libs_math(operand, out)
+                rpn_to_x64(operand, out)
             # number or variable?
             elif operand not in variable_names:
                 out.write(f"; -- {opcode} num --\n")
@@ -486,6 +486,21 @@ def compile(program_filepath=None, program=[], string_literals=[],
             out.write(f"\tCQO  ; sign extend rax into rdx:rax\n")
             out.write(f"\tIDIV rcx\n")
             out.write(f"\tPUSH rax\n")
+        elif opcode == "FLOAT":
+            out.write(f"; -- {opcode} --\n")
+            out.write(f"\tPOP rax\n")
+            out.write(f"\tPXOR xmm0, xmm0\n")
+            out.write(f"\tCVTSI2SD xmm0, rax\n")
+            out.write(f"\tMOVQ rax, xmm0\n")
+            out.write(f"\tPUSH rax\n")
+        elif opcode == "FLOOR":
+            out.write(f"; -- {opcode} --\n")
+            out.write(f"\tPOP rax\n")
+            out.write(f"\tPXOR xmm0, xmm0\n")
+            out.write(f"\tMOVQ xmm0, rax\n")
+            out.write(f"\tCVTTSD2SI rax, xmm0\n")
+            out.write(f"\tPUSH rax\n")
+
         elif opcode == "PRINT":
             string_literal_index = program[ip]
             ip += 1
@@ -495,21 +510,21 @@ def compile(program_filepath=None, program=[], string_literals=[],
             elif core.Messages.F_FLOAT.value in string_literals[string_literal_index]:
                 out.write(f"\tPOP rdx\n")  # value to print
 
-            out.write(f"\tSUB rsp, 32\n")
+            out.write(f"\tSUB rsp, 40\n")
             out.write(f"\tLEA rcx, string_literal_{string_literal_index}\n")
             out.write(f"\tXOR eax, eax\n")
             out.write(f"\tCALL printf\n")
-            out.write(f"\tADD rsp, 32\n")
+            out.write(f"\tADD rsp, 40\n")
 
         elif opcode == "READ":
             out.write(f"; -- {opcode} --\n")
-            out.write(f"\tSUB rsp, 32\n")
+            out.write(f"\tSUB rsp, 40\n")
             out.write(f"\tLEA rcx, F_NUMB\n")  # format string
             out.write(f"\tLEA rdx, read_buffer\n")
             out.write(f"\tXOR eax, eax\n")
             out.write(f"\tMOV [rdx], eax\n")
             out.write(f"\tCALL scanf\n")
-            out.write(f"\tADD rsp, 32\n")
+            out.write(f"\tADD rsp, 40\n")
             out.write(f"\tPUSH qword [read_buffer]\n")
 
         elif opcode == "JUMP.EQ.0":
@@ -549,11 +564,11 @@ def compile(program_filepath=None, program=[], string_literals=[],
 
     out.write(f"ERROR_LABEL:\n")
     out.write(f"; -- ERROR --\n")
-    out.write(f"\tSUB rsp, 32\n")
+    out.write(f"\tSUB rsp, 40\n")
     out.write(f"\tLEA rcx, E_DIV0\n")
     out.write(f"\tXOR eax, eax\n")
     out.write(f"\tCALL printf\n")
-    out.write(f"\tADD rsp, 32\n")
+    out.write(f"\tADD rsp, 40\n")
     
     out.write(f"EXIT_LABEL:\n")
     out.write(f"\tXOR rax, rax\n")
@@ -563,7 +578,7 @@ def compile(program_filepath=None, program=[], string_literals=[],
     return "OK", asm_filepath
 
 
-def libs_math(opcode:core.Expression, out) -> None:
+def rpn_to_x64(opcode:core.Expression, out) -> None:
     out.write(f"; {opcode}\n")
     out.write(f"; {repr(opcode)}\n")
     params = repr(opcode).split()
@@ -589,9 +604,9 @@ def libs_math(opcode:core.Expression, out) -> None:
         elif param == '/':
             out.write(f"\tDIVSD xmm0, xmm1\n")
         elif param == '^':
-            out.write(f"\tSUB rsp, 32\n")
+            out.write(f"\tSUB rsp, 40\n")
             out.write(f"\tcall pow\n")
-            out.write(f"\tADD rsp, 32\n")
+            out.write(f"\tADD rsp, 40\n")
 
         out.write(f"\tMOVQ rax, xmm0\n")
         out.write(f"\tPUSH rax\n")
