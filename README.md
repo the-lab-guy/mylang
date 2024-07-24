@@ -1,6 +1,6 @@
-# Mylang Documentation
+# Mylang Documentation  
 
-## Commands
+## Commands  
 - `PUSH n`  
 	+ The number 'n' is pushed (placed) on to the top of the Stack.
 - `PUSH variable_name`
@@ -39,11 +39,11 @@
 - `HALT`  
 	+ End program execution and return control to the operating system.
 
-## Labels
+## Labels  
 - `Label_name:` blah
 
 
-## Mathematical Expression Evaluation
+## Mathematical Expression Evaluation  
 The use of simple mathematical expressions are supported in the language. The following operations are currently implemented:
 
 - `^` raise to a power, e.g. 3^2 is equivalent to 9
@@ -51,24 +51,33 @@ The use of simple mathematical expressions are supported in the language. The fo
 - `/` division, e.g. 8/2 is equivalent to 4
 - `+` addition, e.g. 3+4 is equivalent to 7
 - `-` subtraction, e.g. 7-3 is equivalent to 4
-- `( )` parentheses to increase the precedence (or order) of operations,
+- `( )` parentheses to increase the precedence (or order) of operations,   
 	+ e.g. 2 * (3 + 1) is equivalent to 2 * 4, or 8. Whereas, without parentheses  
 	we get 2 * 3 + 1 being equivalent to 6 + 1, or 7
 
 An expression may be entered on its own on a single line in the program, or it may be passed as a parameter to the PUSH instruction.
 In both cases, the result of evaluating the expression will be placed on the top of the stack, ready for use in the program.
 
+__NOTE:__ all operations in the operation are floating-point based. Therefore, the result returned on the Stack will always be a floating-point value. Any operations that you do with this number in your program, must be able to handle floating-point numbers.
+
+The commands `FLOAT` and `FLOOR` are available to convert the number at the top of the Stack to a floating-point representation or an integer representation, respectively.
+
+
+
 A valid expression _must_ consist of at least three elements, the _left_hand_term_, the _operation_, and the _right_hand_term_. Parentheses are optional.  
 
-### Some examples of expressions
+### Some examples of expressions  
 
-`4 * ((3 + 4) / 2) - 1`
+`4 * ((3 + 4) / 2) - 1`  
+Top of Stack = 13.0  
 
-`PUSH 9 * 3`
+`PUSH 9 * 3`  
+Top of Stack = 27.0
+
 
 
 ***
-### Notes
+### Notes  
 *Emphasized* _Emphasized_  
 **Strong** __Strong__
 
