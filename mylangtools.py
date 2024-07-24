@@ -309,6 +309,12 @@ def interpret(program=[], label_tracker={}) -> str:
                 b = stack.pop()
                 stack.push(a)
                 stack.push(b)
+            elif opcode == "FLOAT":
+                a = stack.pop()
+                stack.push(float(a))
+            elif opcode == "FLOOR":
+                a = stack.pop()
+                stack.push(int(a))
             elif opcode == "PRINT":
                 string_literal = program[pc]\
                     .replace('\\n', '\n').replace('\\t', '\t')
