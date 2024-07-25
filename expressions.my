@@ -39,5 +39,7 @@ PRINT
 PRINT " @$ "
 PRINT
 
+PRINT Multiple words without quotes
+PRINT "\nTo use symbols, sentence must be in quotes.\n"
 HALT
 

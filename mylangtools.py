@@ -185,7 +185,7 @@ def tokenise(program_filepath=None):
             elif opcode == "PRINT":
                 # parse string literal
                 if len(parts) > 1:
-                    string_literal = parts[1] 
+                    string_literal = ' '.join(parts[1:])
                 else:
                     string_literal = "\\n"
                 program.append(string_literal)

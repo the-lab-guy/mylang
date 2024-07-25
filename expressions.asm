@@ -34,6 +34,8 @@ string_literal_9 db ` %f `, 0
 string_literal_10 db `\n`, 0
 string_literal_11 db ` %f `, 0
 string_literal_12 db `\n`, 0
+string_literal_13 db `Multiple words without quotes`, 0
+string_literal_14 db `\nTo use symbols, sentence must be in quotes.\n`, 0
 
 ; -- Entry Point --
 section .text
@@ -358,6 +360,18 @@ TEST_LABEL:
 ; -- PRINT --
 	SUB rsp, 40
 	LEA rcx, string_literal_12
+	XOR eax, eax
+	CALL printf
+	ADD rsp, 40
+; -- PRINT --
+	SUB rsp, 40
+	LEA rcx, string_literal_13
+	XOR eax, eax
+	CALL printf
+	ADD rsp, 40
+; -- PRINT --
+	SUB rsp, 40
+	LEA rcx, string_literal_14
 	XOR eax, eax
 	CALL printf
 	ADD rsp, 40
