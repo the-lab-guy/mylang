@@ -7,26 +7,6 @@
 	+ The number stored in the named_variable's storage space is __copied__ on to the top of the Stack.
 - `POP variable_name`  
 	+ The number on top of the Stack is __removed__ and stored in the named variable's storage space.
-- `DUP`  
-	+ Duplicates the number at the top of the Stack, creating two identical entries.
-- `SWAP`  
-	+ Exchanges the number on top of the Stack with the number immediately below it.
-- `JUMP.EQ.0 label_name`  
-	+ If the value on top of the Stack is zero, then program execution continues from the instruction after label_name
-- `JUMP.GT.0 label_name`  
-	+ If the value on top of the Stack is positive, then program execution continues from the instruction after label_name
-- `JUMP.LT.0 label_name`  
-	+ If the value on top of the Stack is negative, then program execution continues from the instruction after label_name
-- `JUMP.NE.0 label_name`  
-	+ If the value on top of the Stack is _NOT_ zero, then program execution continues from the instruction after label_name
-- `ADD`  
-	+ Remove two numbers from the top of the Stack, add them together and put the result on top of the Stack.
-- `SUB`  
-	+ Remove two numbers from the top of the Stack, subtract the first number from the second and put the result on top of the Stack.
-- `MUL`  
-	+ Remove two numbers from the top of the Stack, multiply them together and put the result on top of the Stack.
-- `DIV`  
-	+ Remove two numbers from the top of the Stack, divide the second number by the first and put the result on top of the Stack. 
 - `PRINT "formatted_literal_string"`  
 	+ Any text between the double-quotes will be displayed on the screen.  
 	If the text contains the special character sequence `@#`, the `@#` will be replaced with the number on the top of the Stack. e.g. if 10 is on the Stack, then `PRINT "@# apples"` would display "10 apples" on the screen.  
@@ -36,6 +16,35 @@
 	+ Displays nothing and moves to a new line on the display.
 - `READ`  
 	+ Pause the program and allow the user to enter data, until [Enter] is pressed. The data is left on the Stack and the program execution resumes.
+- `ADD`  
+	+ Remove two numbers from the top of the Stack, add them together and put the result on top of the Stack.
+- `SUB`  
+	+ Remove two numbers from the top of the Stack, subtract the first number from the second and put the result on top of the Stack.
+- `MUL`  
+	+ Remove two numbers from the top of the Stack, multiply them together and put the result on top of the Stack.
+- `DIV`  
+	+ Remove two numbers from the top of the Stack, divide the second number by the first and put the result on top of the Stack. 
+- `DUP`  
+	+ Duplicates the number at the top of the Stack, creating two identical entries.
+- `SWAP`  
+	+ Exchanges the number on top of the Stack with the number immediately below it.
+
+- `FLOOR`  
+	+ Convert the floating-point number at the top of the Stack to an integer by rounding down. The result will replace the top of the Stack.
+	+ _Note:_ If the value on the top of the Stack is not in floating-point format, the result will be undefined.
+
+- `FLOAT`  
+	+ Convert the integer number at the top of the Stack to floating-point format, leaving the result on the top of the Stack.
+	+ _Note:_ If the value on the top of the Stack is not an integer, the result will be undefined.
+
+- `JUMP.EQ.0 label_name`  
+	+ If the value on top of the Stack is zero, then program execution continues from the instruction after label_name
+- `JUMP.GT.0 label_name`  
+	+ If the value on top of the Stack is positive, then program execution continues from the instruction after label_name
+- `JUMP.LT.0 label_name`  
+	+ If the value on top of the Stack is negative, then program execution continues from the instruction after label_name
+- `JUMP.NE.0 label_name`  
+	+ If the value on top of the Stack is _NOT_ zero, then program execution continues from the instruction after label_name
 - `HALT`  
 	+ End program execution and return control to the operating system.
 
