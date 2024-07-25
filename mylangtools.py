@@ -190,26 +190,24 @@ def tokenise(program_filepath=None):
                     string_literal = "\\n"
                 program.append(string_literal)
                 token_counter += 1
-            elif opcode == "JUMP.EQ.0":
-                # read label
-                label = parts[1]
-                program.append(label)
+
+            elif opcode == "JUMP":
+                condition = ''.join(parts[1:3])
+                label = parts[3]
+                program.append(condition)
                 token_counter += 1
-            elif opcode == "JUMP.GT.0":
-                # read label
-                label = parts[1]
-                program.append(label)
-                token_counter += 1
-            elif opcode == "JUMP.LT.0":
-                # read label
-                label = parts[1]
-                program.append(label)
-                token_counter += 1
-            elif opcode == "JUMP.NE.0":
-                # read label
-                label = parts[1]
-                program.append(label)
-                token_counter += 1
+                if condition == ".EQ.0":
+                    program.append(label)
+                    token_counter += 1
+                elif condition == ".GT.0":
+                    program.append(label)
+                    token_counter += 1
+                elif condition == ".LT.0":
+                    program.append(label)
+                    token_counter += 1
+                elif condition == ".NE.0":
+                    program.append(label)
+                    token_counter += 1
 
         except IndexError:
             warning_msg = core.Error.message(core.Messages.E_MISS, token_counter, opcode)
@@ -266,30 +264,30 @@ def interpret(program=[], label_tracker={}) -> str:
                     heap.store(variable_name, a)
                 else:
                     return core.Error.message(core.Messages.E_ILLEG, pc-1, opcode)
-            elif opcode == "JUMP.EQ.0":
+            elif opcode == "JUMP":
+                condition = str(program[pc])
+                pc += 1
                 number = stack.top()
-                if number == 0:
-                    pc = label_tracker[program[pc]]
-                else:
-                    pc += 1
-            elif opcode == "JUMP.GT.0":
-                number = stack.top()
-                if number > 0:
-                    pc = label_tracker[program[pc]]
-                else:
-                    pc += 1
-            elif opcode == "JUMP.LT.0":
-                number = stack.top()
-                if number < 0:
-                    pc = label_tracker[program[pc]]
-                else:
-                    pc += 1
-            elif opcode == "JUMP.NE.0":
-                number = stack.top()
-                if number != 0:
-                    pc = label_tracker[program[pc]]
-                else:
-                    pc += 1
+                if condition == ".EQ.0":
+                    if number == 0:
+                        pc = label_tracker[program[pc]]
+                    else:
+                        pc += 1
+                elif condition == ".GT.0":
+                    if number > 0:
+                        pc = label_tracker[program[pc]]
+                    else:
+                        pc += 1
+                elif condition == ".LT.0":
+                    if number < 0:
+                        pc = label_tracker[program[pc]]
+                    else:
+                        pc += 1
+                elif condition == ".NE.0":
+                    if number != 0:
+                        pc = label_tracker[program[pc]]
+                    else:
+                        pc += 1
             elif opcode == "ADD":
                 a = stack.pop()
                 b = stack.pop()
