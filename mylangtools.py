@@ -3,19 +3,23 @@ import textwrap
 
 
 def isnamechar(char:chr) -> bool:
-    return char.isalnum() or char == '_' or char == ':'
+    return char.isalnum() or char in "_:"
 
 def iswhitespace(char:chr) -> bool:
-    return char in " \t \n"
+    return char in " \t\n"
 
 def issinglesymbol(char:chr) -> bool:
     return char in "()*/^"
 
-def isanysymbol(char:chr) -> bool:
-    return (char in "+-=") or (issinglesymbol(char))
+def ispairsymbol(chars:str) -> bool:
+    if len(chars) == 0: return False
+    if chars[0] in "+-=@#$":
+        return True
+    return False
+
 
 def isseparator(char:chr) -> bool:
-    return not isnamechar(char)
+    return not isnamechar(char) and char not in "."
     #return (iswhitespace(char) or issymbol(char))
 
 
@@ -43,7 +47,7 @@ def lexer(text_line:str="") -> list:
             else:
                 in_quoted_string = False
                 lexeme = lexeme + char
-                lexemes.append(lexeme)
+                lexemes.append(lexeme[1:-1])    # remove quotes
                 lexeme = ""
                 continue
 
@@ -63,14 +67,15 @@ def lexer(text_line:str="") -> list:
             lexemes.append(lexeme)
             lexeme = ""
             print(f"[{lexeme}] - symbol '{char}'")
-        elif (isanysymbol(char)):
-            if lexeme == char:   # second valid multi symbol
-                lexeme = lexeme + char
-                lexemes.append(lexeme)
+        elif (ispairsymbol(char)):
+            if len(lexeme) == 1:   # first symbol already caught
+                if ispairsymbol(lexeme):
+                    lexeme = lexeme + char    # add second symbol
+                    lexemes.append(lexeme)    # save pair
                 lexeme = ""
             else:
                 if len(lexeme) > 0:   # first valid multi symbol
-                    lexemes.append(lexeme)
+                    lexemes.append(lexeme)    # save previous lexeme
                     lexeme = ""
                 lexeme = char
 
@@ -83,7 +88,7 @@ def lexer(text_line:str="") -> list:
                     lexeme = ""
             lexeme = lexeme + char
             print(f"[{lexeme}] - normal '{char}'")
-        else:   # must be illegal character
+        else:   # might be first of pair or illegal character
             if len(lexeme) > 0:
                 lexemes.append(lexeme)
             lexeme = char
@@ -179,8 +184,9 @@ def tokenise(program_filepath=None):
                     error_count += 1
             elif opcode == "PRINT":
                 # parse string literal
-                string_literal = '_'.join(parts[1:])[1:-1]
-                if len(string_literal) == 0:
+                if len(parts) > 1:
+                    string_literal = parts[1] 
+                else:
                     string_literal = "\\n"
                 program.append(string_literal)
                 token_counter += 1

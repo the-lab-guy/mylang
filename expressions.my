@@ -1,17 +1,17 @@
 3 * ((5 + 4) / 2) - 1
 DUP
-PRINT " @$ "
-PRINT
+PRINT @$
+PRINT "\nHello world\n"
 FLOOR
 
 3 / 2 * 24 - 2 ^ 4
 DUP
-PRINT " @$ "
+PRINT "\t@$ "
 PRINT
 FLOOR
 
 ADD
-PRINT " @# "
+PRINT " @@ ## @# "
 PRINT
 
 TEST_LABEL:

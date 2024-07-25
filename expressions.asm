@@ -21,11 +21,11 @@ F_NUMB  db "%lld", 0
 F_STR   db "%s", 0
 F_FLOAT db "%f", 0
 
-string_literal_0 db ` %f `, 0
-string_literal_1 db `\n`, 0
-string_literal_2 db ` %f `, 0
+string_literal_0 db `%f`, 0
+string_literal_1 db `\nHello world\n`, 0
+string_literal_2 db `\t%f `, 0
 string_literal_3 db `\n`, 0
-string_literal_4 db ` %lld `, 0
+string_literal_4 db ` @@ ## %lld `, 0
 string_literal_5 db `\n`, 0
 string_literal_6 db `CODE: 33 + %lld =`, 0
 string_literal_7 db ` %f `, 0
@@ -306,20 +306,11 @@ TEST_LABEL:
 	MOVQ rax, xmm0
 	PUSH rax
 ; -- Expression --
-; (2 ^ (3 + 2))
-; 2 3 2 +  ^ 
+; (2 ^ 2)
+; 2 2 ^ 
 	MOV rax, __?float64?__(2.0)
 	PUSH rax
-	MOV rax, __?float64?__(3.0)
-	PUSH rax
 	MOV rax, __?float64?__(2.0)
-	PUSH rax
-	POP rax
-	MOVQ xmm1, rax
-	POP rax
-	MOVQ xmm0, rax
-	ADDSD xmm0, xmm1
-	MOVQ rax, xmm0
 	PUSH rax
 	POP rax
 	MOVQ xmm1, rax
