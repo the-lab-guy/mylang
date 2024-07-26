@@ -537,34 +537,31 @@ def compile(program_filepath=None, program=[], string_literals=[],
             out.write(f"\tADD rsp, 40\n")
             out.write(f"\tPUSH qword [read_buffer]\n")
 
-        elif opcode == "JUMP.EQ.0":
+        elif opcode == "JUMP":
+            condition = program[ip]
+            ip += 1
+            out.write(f"; -- {opcode}{condition} --\n")
             label = program[ip]
             ip += 1
+            if condition == ".EQ.0":
+                out.write(f"\tCMP qword [rsp], 0\n")
+                out.write(f"\tJE {label}\n")
 
-            out.write(f"; -- {opcode} --\n")
-            out.write(f"\tCMP qword [rsp], 0\n")
-            out.write(f"\tJE {label}\n")
-        elif opcode == "JUMP.GT.0":
-            label = program[ip]
-            ip += 1
+            elif condition == ".GT.0":
+                out.write(f"\tCMP qword [rsp], 0\n")
+                out.write(f"\tJG {label}\n")
 
-            out.write(f"; -- {opcode} --\n")
-            out.write(f"\tCMP qword [rsp], 0\n")
-            out.write(f"\tJG {label}\n")
-        elif opcode == "JUMP.LT.0":
-            label = program[ip]
-            ip += 1
+            elif condition == ".LT.0":
+                out.write(f"\tCMP qword [rsp], 0\n")
+                out.write(f"\tJL {label}\n")
 
-            out.write(f"; -- {opcode} --\n")
-            out.write(f"\tCMP qword [rsp], 0\n")
-            out.write(f"\tJL {label}\n")
-        elif opcode == "JUMP.NE.0":
-            label = program[ip]
-            ip += 1
+            elif condition == ".NE.0":
+                out.write(f"\tCMP qword [rsp], 0\n")
+                out.write(f"\tJNE {label}\n")
+            else:
+                out.write(f"; -- Error: Unrecognised Branch Condition --\n")
+                return f"{core.Error.message(core.Messages.E_OPCOD, ip-1, opcode+condition)} in {program_filepath}", ""
 
-            out.write(f"; -- {opcode} --\n")
-            out.write(f"\tCMP qword [rsp], 0\n")
-            out.write(f"\tJNE {label}\n")
         elif opcode == "HALT":
             out.write(f"; -- {opcode} --\n")
             out.write(f"\tJMP EXIT_LABEL\n")
