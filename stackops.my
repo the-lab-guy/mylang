@@ -23,4 +23,18 @@ SWAP
 PRINT "Top was: @#  -  "
 PRINT "Second was: @# \n"
 
+PRINT "DROP test\n"
+PRINT "Pushing 1111 \n"
+PUSH 1111
+PRINT "Pushing 2222 \n"
+PUSH 2222
+
+PRINT "Dropping 2222 \n"
+DROP
+
+PRINT "\tExpecting: 1111 \n"
+PRINT "\tActual Top: @# \n"
+
+
+
 HALT

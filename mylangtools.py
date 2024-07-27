@@ -240,6 +240,8 @@ def interpret(program=[], label_tracker={}) -> str:
             # skip if its a label
             elif opcode.endswith(":"):
                 continue
+            elif opcode == "DROP":
+                _ = stack.pop()
             elif opcode == "PUSH":
                 operand = str(program[pc])
                 if operand.isnumeric():
@@ -462,6 +464,9 @@ def compile(program_filepath=None, program=[], string_literals=[],
             out.write(f"\tLEA rcx, {variable_name}\n")
             out.write(f"\tPOP rax\n")
             out.write(f"\tMOV [rcx], rax\n")
+        elif opcode == "DROP":
+            out.write(f"; -- {opcode} --\n")
+            out.write(f"\tADD rsp, 8\n")
         elif opcode == "DUP":
             out.write(f"; -- {opcode} --\n")
             out.write(f"\tPOP rax\n")
