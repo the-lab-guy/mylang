@@ -28,6 +28,8 @@
 	+ Duplicates the number at the top of the Stack, creating two identical entries.
 - `SWAP`  
 	+ Exchanges the number on top of the Stack with the number immediately below it.
+- `DROP`  
+	+ Removes the number at the top of the Stack.
 
 - `FLOOR`  
 	+ Convert the floating-point number at the top of the Stack to an integer by rounding down. The result will replace the top of the Stack.
