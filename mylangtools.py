@@ -240,6 +240,7 @@ def interpret(program=[], label_tracker={}) -> str:
             # skip if its a label
             elif opcode.endswith(":"):
                 continue
+            # stackops
             elif opcode == "DROP":
                 _ = stack.pop()
             elif opcode == "PUSH":
@@ -266,6 +267,14 @@ def interpret(program=[], label_tracker={}) -> str:
                     heap.store(variable_name, a)
                 else:
                     return core.Error.message(core.Messages.E_ILLEG, pc-1, opcode)
+            elif opcode == "DUP":
+                stack.push(stack.top())
+            elif opcode == "SWAP":
+                a = stack.pop()
+                b = stack.pop()
+                stack.push(a)
+                stack.push(b)
+            # branch control
             elif opcode == "JUMP":
                 condition = str(program[pc])
                 pc += 1
@@ -290,6 +299,7 @@ def interpret(program=[], label_tracker={}) -> str:
                         pc = label_tracker[program[pc]]
                     else:
                         pc += 1
+            # arithmetic
             elif opcode == "ADD":
                 a = stack.pop()
                 b = stack.pop()
@@ -308,19 +318,13 @@ def interpret(program=[], label_tracker={}) -> str:
                     return core.Error.message(core.Messages.E_DIV0, pc-1, opcode)
                 b = stack.pop()
                 stack.push(b//a)
-            elif opcode == "DUP":
-                stack.push(stack.top())
-            elif opcode == "SWAP":
-                a = stack.pop()
-                b = stack.pop()
-                stack.push(a)
-                stack.push(b)
             elif opcode == "FLOAT":
                 a = stack.pop()
                 stack.push(float(a))
             elif opcode == "FLOOR":
                 a = stack.pop()
                 stack.push(int(a))
+            # input / output
             elif opcode == "PRINT":
                 string_literal = program[pc]\
                     .replace('\\n', '\n').replace('\\t', '\t')
@@ -440,6 +444,7 @@ def compile(program_filepath=None, program=[], string_literals=[],
         if opcode.endswith(":"):
             out.write(f"; -- Label --\n")
             out.write(f"{opcode}\n")
+        # stackops
         elif opcode == "PUSH":
             operand = program[ip]
             ip += 1
@@ -478,6 +483,7 @@ def compile(program_filepath=None, program=[], string_literals=[],
             out.write(f"\tPOP rcx\n")
             out.write(f"\tPUSH rax\n")
             out.write(f"\tPUSH rcx\n")
+        # arithmetic
         elif opcode == "ADD":
             out.write(f"; -- {opcode} --\n")
             out.write(f"\tPOP rax\n")
@@ -516,6 +522,7 @@ def compile(program_filepath=None, program=[], string_literals=[],
             out.write(f"\tCVTTSD2SI rax, xmm0\n")
             out.write(f"\tPUSH rax\n")
 
+        # input / output
         elif opcode == "PRINT":
             string_literal_index = program[ip]
             ip += 1
@@ -542,6 +549,7 @@ def compile(program_filepath=None, program=[], string_literals=[],
             out.write(f"\tADD rsp, 40\n")
             out.write(f"\tPUSH qword [read_buffer]\n")
 
+        # branch control
         elif opcode == "JUMP":
             condition = program[ip]
             ip += 1
@@ -567,6 +575,7 @@ def compile(program_filepath=None, program=[], string_literals=[],
                 out.write(f"; -- Error: Unrecognised Branch Condition --\n")
                 return f"{core.Error.message(core.Messages.E_OPCOD, ip-1, opcode+condition)} in {program_filepath}", ""
 
+        # system
         elif opcode == "HALT":
             out.write(f"; -- {opcode} --\n")
             out.write(f"\tJMP EXIT_LABEL\n")
