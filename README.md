@@ -31,6 +31,7 @@
 - `DROP`  
 	+ Removes the number at the top of the Stack.
 
+
 - `FLOOR`  
 	+ Convert the floating-point number at the top of the Stack to an integer by rounding down. The result will replace the top of the Stack.
 	+ _Note:_ If the value on the top of the Stack is not in floating-point format, the result will be undefined.
@@ -38,6 +39,7 @@
 - `FLOAT`  
 	+ Convert the integer number at the top of the Stack to floating-point format, leaving the result on the top of the Stack.
 	+ _Note:_ If the value on the top of the Stack is not an integer, the result will be undefined.
+
 
 - `JUMP.EQ.0 label_name`  
 	+ If the value on top of the Stack is zero, then program execution continues from the instruction after label_name
@@ -49,6 +51,27 @@
 	+ If the value on top of the Stack is _NOT_ zero, then program execution continues from the instruction after label_name
 - `HALT`  
 	+ End program execution and return control to the operating system.
+
+- `AND`  
+	+ __TODO__
+- `OR`  
+	+ __TODO__
+- `XOR`  
+	+ __TODO__
+- `NOT`  
+	+ __TODO__
+- `IF ... THEN ... ELSE`  
+	+ __TODO__
+- `REPEAT ... UNTIL`  
+	+ __TODO__
+- `WHILE ... LOOP`  
+	+ __TODO__
+- `FOR ... NEXT`  
+	+ __TODO__
+- `TO ... DONE`  
+	+ __TODO__
+- 
+
 
 ## Labels  
 - `Label_name:` blah
