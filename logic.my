@@ -1,0 +1,36 @@
+PRINT "\nLogic operations test "
+PRINT
+
+PRINT "\n Expected: 1 AND 1 is 1 (TRUE)\n"
+PUSH 1
+DUP
+AND
+PRINT "\tResult: @# \n"
+
+PRINT "\n Expected: 0 AND 1 is 0 (FALSE)\n"
+PUSH 0
+PUSH 1
+AND
+PRINT "\tResult: @# \n"
+
+PRINT "\n Expected: 1 AND 0 is 0 (FALSE)\n"
+PUSH 1
+PUSH 0
+AND
+PRINT "\tResult: @# \n"
+
+PRINT "\n Expected: 0 AND 0 is 0 (FALSE)\n"
+PUSH 0
+DUP
+AND
+PRINT "\tResult: @# \n"
+
+PRINT "\n Expected: -1 AND 1 is -1 (TRUE)\n"
+PUSH 0
+PUSH 1
+SUB
+DUP
+AND
+PRINT "\tResult: @# \n"
+
+HALT

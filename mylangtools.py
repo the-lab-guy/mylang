@@ -20,7 +20,6 @@ def ispairsymbol(chars:str) -> bool:
 
 def isseparator(char:chr) -> bool:
     return not isnamechar(char) and char not in "."
-    #return (iswhitespace(char) or issymbol(char))
 
 
 ########################
@@ -33,7 +32,7 @@ def lexer(text_line:str="") -> list:
     lexemes = []
     lexeme = ""
     in_quoted_string = False
-
+    
     source = text_line.lstrip()   # remove leading spaces
 
     for index in range(len(source)):
@@ -53,13 +52,15 @@ def lexer(text_line:str="") -> list:
 
         if in_quoted_string == True:
             lexeme = lexeme + char
+
         elif (iswhitespace(char)):
         # skip multiple space chars
             if len(lexeme) > 0:
                 lexemes.append(lexeme)
                 lexeme = ""
             print(f"[{lexeme}] - was a space '{char}'")
-        elif issinglesymbol(char):
+
+        elif (issinglesymbol(char)):
             if len(lexeme) > 0:
                 lexemes.append(lexeme)
                 lexeme = ""
@@ -67,19 +68,19 @@ def lexer(text_line:str="") -> list:
             lexemes.append(lexeme)
             lexeme = ""
             print(f"[{lexeme}] - symbol '{char}'")
-        elif (ispairsymbol(char)):
-            if len(lexeme) == 1:   # first symbol already caught
-                if ispairsymbol(lexeme):
-                    lexeme = lexeme + char    # add second symbol
-                    lexemes.append(lexeme)    # save pair
-                lexeme = ""
-            else:
-                if len(lexeme) > 0:   # first valid multi symbol
-                    lexemes.append(lexeme)    # save previous lexeme
-                    lexeme = ""
-                lexeme = char
 
+        elif (ispairsymbol(char)):
+            if ispairsymbol(lexeme):      # first symbol already caught?
+                lexeme = lexeme + char    # add second multi symbol
+                lexemes.append(lexeme)    # save pair
+                lexeme = ""
+            elif len(lexeme) > 0:            # previous is unrelated
+                    lexemes.append(lexeme)   # save previous lexeme
+                    lexeme = char            # keep first valid multi symbol
+            else:
+                lexeme = lexeme + char
             print(f"[{lexeme}] - multi symbol '{char}'")
+
         elif (isnamechar(char)):
             if len(lexeme) > 0:
                 if isseparator(lexeme[-1]):
@@ -88,6 +89,7 @@ def lexer(text_line:str="") -> list:
                     lexeme = ""
             lexeme = lexeme + char
             print(f"[{lexeme}] - normal '{char}'")
+
         else:   # might be first of pair or illegal character
             if len(lexeme) > 0:
                 lexemes.append(lexeme)
@@ -324,6 +326,11 @@ def interpret(program=[], label_tracker={}) -> str:
             elif opcode == "FLOOR":
                 a = stack.pop()
                 stack.push(int(a))
+            # logic ops
+            elif opcode == "AND":
+                a = stack.pop()
+                b = stack.pop()
+                stack.push(a and b)
             # input / output
             elif opcode == "PRINT":
                 string_literal = program[pc]\
@@ -348,6 +355,7 @@ def interpret(program=[], label_tracker={}) -> str:
             opcode = opcode + ' ' + program[pc]
             return core.Error.message(message, pc-1, opcode)
 
+    print(f"Stack size: {stack._size()}")
     return "OK"
 
 
