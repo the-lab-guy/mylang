@@ -8,6 +8,9 @@ def isnamechar(char:chr) -> bool:
 def iswhitespace(char:chr) -> bool:
     return char in " \t\n"
 
+def isunarysymbol(char:chr) -> bool:
+    return char in "-"
+
 def issinglesymbol(char:chr) -> bool:
     return char in "()*/^"
 
@@ -17,9 +20,28 @@ def ispairsymbol(chars:str) -> bool:
         return True
     return False
 
-
 def isseparator(char:chr) -> bool:
     return not isnamechar(char) and char not in "."
+
+def isdecimalnumber(string:str) -> bool:
+    string = string.lower()
+    string = string.replace('-', '0').replace('.', '0').replace('e', '0')
+    return string.isdecimal()
+
+def ishexnumber(string:str) -> bool:
+    string = string.lower()
+    for char in "xabcdef":
+        string = string.replace(char, '0')
+    return string.isdecimal()
+
+def isanumber(string:str) -> bool:
+    if isdecimalnumber(string):
+        return True
+    elif ishexnumber(string):
+        return True
+    else:
+        return False
+
 
 
 ########################
@@ -32,7 +54,8 @@ def lexer(text_line:str="") -> list:
     lexemes = []
     lexeme = ""
     in_quoted_string = False
-    
+    in_unary_literal = False
+
     source = text_line.lstrip()   # remove leading spaces
 
     for index in range(len(source)):
@@ -52,8 +75,29 @@ def lexer(text_line:str="") -> list:
 
         if in_quoted_string == True:
             lexeme = lexeme + char
+            continue
 
-        elif (iswhitespace(char)):
+        if (isunarysymbol(char)):
+            if len(lexeme) > 0:
+                prev_char = lexeme[-1]
+            else:
+                prev_char = lexemes[-1][-1]
+            next_char = source[index+1]
+            if prev_char not in "+-*/^" and next_char.isdigit():
+                in_unary_literal = True
+                if len(lexeme) > 0:
+                    lexemes.append(lexeme)
+                lexeme = char
+                continue
+
+        if in_unary_literal:
+            if char.isdigit() or char in ".e":
+                lexeme = lexeme + char
+                continue
+            else:
+                in_unary_literal = False
+
+        if (iswhitespace(char)):
         # skip multiple space chars
             if len(lexeme) > 0:
                 lexemes.append(lexeme)
@@ -170,7 +214,7 @@ def tokenise(program_filepath=None):
                         error_count += 1
                 else:
                     operand = str(parts[1])
-                    if not operand.isnumeric() and not operand.isidentifier():
+                    if not isanumber(operand) and not operand.isidentifier():
                         warning_msg = core.Error.message(core.Messages.E_ILLEG, token_counter, operand)
                         print(f"{warning_msg} in line: {line_number} {line}")
                         error_count += 1
@@ -247,7 +291,7 @@ def interpret(program=[], label_tracker={}) -> str:
                 _ = stack.pop()
             elif opcode == "PUSH":
                 operand = str(program[pc])
-                if operand.isnumeric():
+                if isanumber(operand):
                     number = int(program[pc])
                     pc += 1
                     stack.push(number)

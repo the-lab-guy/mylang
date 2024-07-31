@@ -26,9 +26,7 @@ AND
 PRINT "\tResult: @# \n"
 
 PRINT "\n Expected: -1 AND 1 is -1 (TRUE)\n"
-PUSH 0
-PUSH 1
-SUB
+PUSH -1
 DUP
 AND
 PRINT "\tResult: @# \n"
