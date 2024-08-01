@@ -83,4 +83,16 @@ DUP
 XOR
 PRINT "\tResult: @# \n"
 
+PRINT "=========================================="
+
+PRINT "\n Expected: NOT -1 is 0 (FALSE)\n"
+PUSH -1
+NOT
+PRINT "\tResult: @# \n"
+
+PRINT "\n Expected: NOT 0 is -1 (TRUE)\n"
+PUSH 0
+NOT
+PRINT "\tResult: @# \n"
+
 HALT
