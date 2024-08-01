@@ -374,7 +374,18 @@ def interpret(program=[], label_tracker={}) -> str:
             elif opcode == "AND":
                 a = stack.pop()
                 b = stack.pop()
-                stack.push(a and b)
+                stack.push(a & b)
+            elif opcode == "OR":
+                a = stack.pop()
+                b = stack.pop()
+                stack.push(a | b)
+            elif opcode == "XOR":
+                a = stack.pop()
+                b = stack.pop()
+                stack.push(a ^ b)
+            elif opcode == "NOT":
+                a = stack.pop()
+                stack.push(~a)
             # input / output
             elif opcode == "PRINT":
                 string_literal = program[pc]\
