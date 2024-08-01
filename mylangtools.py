@@ -8,6 +8,9 @@ def isnamechar(char:chr) -> bool:
 def iswhitespace(char:chr) -> bool:
     return char in " \t\n"
 
+def isunarysymbol(char:chr) -> bool:
+    return char in "-"
+
 def issinglesymbol(char:chr) -> bool:
     return char in "()*/^"
 
@@ -17,10 +20,28 @@ def ispairsymbol(chars:str) -> bool:
         return True
     return False
 
-
 def isseparator(char:chr) -> bool:
     return not isnamechar(char) and char not in "."
-    #return (iswhitespace(char) or issymbol(char))
+
+def isdecimalnumber(string:str) -> bool:
+    string = string.lower()
+    string = string.replace('-', '0').replace('.', '0').replace('e', '0')
+    return string.isdecimal()
+
+def ishexnumber(string:str) -> bool:
+    string = string.lower()
+    for char in "xabcdef":
+        string = string.replace(char, '0')
+    return string.isdecimal()
+
+def isanumber(string:str) -> bool:
+    if isdecimalnumber(string):
+        return True
+    elif ishexnumber(string):
+        return True
+    else:
+        return False
+
 
 
 ########################
@@ -33,6 +54,7 @@ def lexer(text_line:str="") -> list:
     lexemes = []
     lexeme = ""
     in_quoted_string = False
+    in_unary_literal = False
 
     source = text_line.lstrip()   # remove leading spaces
 
@@ -53,13 +75,36 @@ def lexer(text_line:str="") -> list:
 
         if in_quoted_string == True:
             lexeme = lexeme + char
-        elif (iswhitespace(char)):
+            continue
+
+        if (isunarysymbol(char)):
+            if len(lexeme) > 0:
+                prev_char = lexeme[-1]
+            else:
+                prev_char = lexemes[-1][-1]
+            next_char = source[index+1]
+            if prev_char not in "+-*/^" and next_char.isdigit():
+                in_unary_literal = True
+                if len(lexeme) > 0:
+                    lexemes.append(lexeme)
+                lexeme = char
+                continue
+
+        if in_unary_literal:
+            if char.isdigit() or char in ".e":
+                lexeme = lexeme + char
+                continue
+            else:
+                in_unary_literal = False
+
+        if (iswhitespace(char)):
         # skip multiple space chars
             if len(lexeme) > 0:
                 lexemes.append(lexeme)
                 lexeme = ""
             print(f"[{lexeme}] - was a space '{char}'")
-        elif issinglesymbol(char):
+
+        elif (issinglesymbol(char)):
             if len(lexeme) > 0:
                 lexemes.append(lexeme)
                 lexeme = ""
@@ -67,19 +112,19 @@ def lexer(text_line:str="") -> list:
             lexemes.append(lexeme)
             lexeme = ""
             print(f"[{lexeme}] - symbol '{char}'")
-        elif (ispairsymbol(char)):
-            if len(lexeme) == 1:   # first symbol already caught
-                if ispairsymbol(lexeme):
-                    lexeme = lexeme + char    # add second symbol
-                    lexemes.append(lexeme)    # save pair
-                lexeme = ""
-            else:
-                if len(lexeme) > 0:   # first valid multi symbol
-                    lexemes.append(lexeme)    # save previous lexeme
-                    lexeme = ""
-                lexeme = char
 
+        elif (ispairsymbol(char)):
+            if ispairsymbol(lexeme):      # first symbol already caught?
+                lexeme = lexeme + char    # add second multi symbol
+                lexemes.append(lexeme)    # save pair
+                lexeme = ""
+            elif len(lexeme) > 0:            # previous is unrelated
+                    lexemes.append(lexeme)   # save previous lexeme
+                    lexeme = char            # keep first valid multi symbol
+            else:
+                lexeme = lexeme + char
             print(f"[{lexeme}] - multi symbol '{char}'")
+
         elif (isnamechar(char)):
             if len(lexeme) > 0:
                 if isseparator(lexeme[-1]):
@@ -88,6 +133,7 @@ def lexer(text_line:str="") -> list:
                     lexeme = ""
             lexeme = lexeme + char
             print(f"[{lexeme}] - normal '{char}'")
+
         else:   # might be first of pair or illegal character
             if len(lexeme) > 0:
                 lexemes.append(lexeme)
@@ -168,7 +214,7 @@ def tokenise(program_filepath=None):
                         error_count += 1
                 else:
                     operand = str(parts[1])
-                    if not operand.isnumeric() and not operand.isidentifier():
+                    if not isanumber(operand) and not operand.isidentifier():
                         warning_msg = core.Error.message(core.Messages.E_ILLEG, token_counter, operand)
                         print(f"{warning_msg} in line: {line_number} {line}")
                         error_count += 1
@@ -240,11 +286,12 @@ def interpret(program=[], label_tracker={}) -> str:
             # skip if its a label
             elif opcode.endswith(":"):
                 continue
+            # stackops
             elif opcode == "DROP":
                 _ = stack.pop()
             elif opcode == "PUSH":
                 operand = str(program[pc])
-                if operand.isnumeric():
+                if isanumber(operand):
                     number = int(program[pc])
                     pc += 1
                     stack.push(number)
@@ -266,6 +313,14 @@ def interpret(program=[], label_tracker={}) -> str:
                     heap.store(variable_name, a)
                 else:
                     return core.Error.message(core.Messages.E_ILLEG, pc-1, opcode)
+            elif opcode == "DUP":
+                stack.push(stack.top())
+            elif opcode == "SWAP":
+                a = stack.pop()
+                b = stack.pop()
+                stack.push(a)
+                stack.push(b)
+            # branch control
             elif opcode == "JUMP":
                 condition = str(program[pc])
                 pc += 1
@@ -290,6 +345,7 @@ def interpret(program=[], label_tracker={}) -> str:
                         pc = label_tracker[program[pc]]
                     else:
                         pc += 1
+            # arithmetic
             elif opcode == "ADD":
                 a = stack.pop()
                 b = stack.pop()
@@ -308,19 +364,29 @@ def interpret(program=[], label_tracker={}) -> str:
                     return core.Error.message(core.Messages.E_DIV0, pc-1, opcode)
                 b = stack.pop()
                 stack.push(b//a)
-            elif opcode == "DUP":
-                stack.push(stack.top())
-            elif opcode == "SWAP":
-                a = stack.pop()
-                b = stack.pop()
-                stack.push(a)
-                stack.push(b)
             elif opcode == "FLOAT":
                 a = stack.pop()
                 stack.push(float(a))
             elif opcode == "FLOOR":
                 a = stack.pop()
                 stack.push(int(a))
+            # logic ops
+            elif opcode == "AND":
+                a = stack.pop()
+                b = stack.pop()
+                stack.push(a & b)
+            elif opcode == "OR":
+                a = stack.pop()
+                b = stack.pop()
+                stack.push(a | b)
+            elif opcode == "XOR":
+                a = stack.pop()
+                b = stack.pop()
+                stack.push(a ^ b)
+            elif opcode == "NOT":
+                a = stack.pop()
+                stack.push(~a)
+            # input / output
             elif opcode == "PRINT":
                 string_literal = program[pc]\
                     .replace('\\n', '\n').replace('\\t', '\t')
@@ -344,6 +410,7 @@ def interpret(program=[], label_tracker={}) -> str:
             opcode = opcode + ' ' + program[pc]
             return core.Error.message(message, pc-1, opcode)
 
+    print(f"Stack size: {stack._size()}")
     return "OK"
 
 
@@ -440,6 +507,7 @@ def compile(program_filepath=None, program=[], string_literals=[],
         if opcode.endswith(":"):
             out.write(f"; -- Label --\n")
             out.write(f"{opcode}\n")
+        # stackops
         elif opcode == "PUSH":
             operand = program[ip]
             ip += 1
@@ -478,6 +546,7 @@ def compile(program_filepath=None, program=[], string_literals=[],
             out.write(f"\tPOP rcx\n")
             out.write(f"\tPUSH rax\n")
             out.write(f"\tPUSH rcx\n")
+        # arithmetic
         elif opcode == "ADD":
             out.write(f"; -- {opcode} --\n")
             out.write(f"\tPOP rax\n")
@@ -516,6 +585,27 @@ def compile(program_filepath=None, program=[], string_literals=[],
             out.write(f"\tCVTTSD2SI rax, xmm0\n")
             out.write(f"\tPUSH rax\n")
 
+        # logic operations
+        elif opcode == "AND":
+            out.write(f"; -- {opcode} --\n")
+            out.write(f"\tPOP rax\n")
+            out.write(f"\tAND qword [rsp], rax\n")
+
+        elif opcode == "OR":
+            out.write(f"; -- {opcode} --\n")
+            out.write(f"\tPOP rax\n")
+            out.write(f"\tOR qword [rsp], rax\n")
+
+        elif opcode == "XOR":
+            out.write(f"; -- {opcode} --\n")
+            out.write(f"\tPOP rax\n")
+            out.write(f"\tXOR qword [rsp], rax\n")
+
+        elif opcode == "NOT":
+            out.write(f"; -- {opcode} --\n")
+            out.write(f"\tNOT qword [rsp]\n")
+
+        # input / output
         elif opcode == "PRINT":
             string_literal_index = program[ip]
             ip += 1
@@ -542,6 +632,7 @@ def compile(program_filepath=None, program=[], string_literals=[],
             out.write(f"\tADD rsp, 40\n")
             out.write(f"\tPUSH qword [read_buffer]\n")
 
+        # branch control
         elif opcode == "JUMP":
             condition = program[ip]
             ip += 1
@@ -567,6 +658,7 @@ def compile(program_filepath=None, program=[], string_literals=[],
                 out.write(f"; -- Error: Unrecognised Branch Condition --\n")
                 return f"{core.Error.message(core.Messages.E_OPCOD, ip-1, opcode+condition)} in {program_filepath}", ""
 
+        # system
         elif opcode == "HALT":
             out.write(f"; -- {opcode} --\n")
             out.write(f"\tJMP EXIT_LABEL\n")
