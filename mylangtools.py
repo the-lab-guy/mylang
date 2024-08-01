@@ -585,6 +585,26 @@ def compile(program_filepath=None, program=[], string_literals=[],
             out.write(f"\tCVTTSD2SI rax, xmm0\n")
             out.write(f"\tPUSH rax\n")
 
+        # logic operations
+        elif opcode == "AND":
+            out.write(f"; -- {opcode} --\n")
+            out.write(f"\tPOP rax\n")
+            out.write(f"\tAND qword [rsp], rax\n")
+
+        elif opcode == "OR":
+            out.write(f"; -- {opcode} --\n")
+            out.write(f"\tPOP rax\n")
+            out.write(f"\tOR qword [rsp], rax\n")
+
+        elif opcode == "XOR":
+            out.write(f"; -- {opcode} --\n")
+            out.write(f"\tPOP rax\n")
+            out.write(f"\tXOR qword [rsp], rax\n")
+
+        elif opcode == "NOT":
+            out.write(f"; -- {opcode} --\n")
+            out.write(f"\tNOT qword [rsp]\n")
+
         # input / output
         elif opcode == "PRINT":
             string_literal_index = program[ip]
