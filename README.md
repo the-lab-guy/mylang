@@ -53,13 +53,13 @@
 	+ End program execution and return control to the operating system.
 
 - `AND`  
-	+ __TODO__
+	+ Logical AND. Performs a bitwise AND operation on the two values at the top of the stack and replaces them with the result.
 - `OR`  
-	+ __TODO__
+	+ Logical OR. Performs a bitwise OR operation on the two values at the top of the stack and replaces them with the result.
 - `XOR`  
-	+ __TODO__
+	+ Logical XOR. Performs a bitwise XOR operation on the two values at the top of the stack and replaces them with the result.
 - `NOT`  
-	+ __TODO__
+	+ Logical NOT - One's Complement. Performs a bitwise NOT operation on the value at the top of the Stack and replaces it with the result.
 - `IF ... THEN ... ELSE`  
 	+ __TODO__
 - `REPEAT ... UNTIL`  
