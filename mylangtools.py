@@ -11,12 +11,13 @@ def iswhitespace(char:chr) -> bool:
 def isunarysymbol(char:chr) -> bool:
     return char in "-"
 
-def issinglesymbol(char:chr) -> bool:
-    return char in "()*/^"
+def isoperator(char:chr) -> bool:
+    return False if len(char) == 0 else char in "()^*/+-=@#$"
 
-def ispairsymbol(chars:str) -> bool:
+def isoperatorpair(chars:str) -> bool:
     if len(chars) == 0: return False
-    if chars[0] in "+-=@#$":
+    operators = ['++', '--', '==', '@#', '@$']
+    if any(chars == s for s in operators):
         return True
     return False
 
@@ -54,15 +55,21 @@ def lexer(text_line:str="") -> list:
     lexemes = []
     lexeme = ""
     in_quoted_string = False
-    in_unary_literal = False
+    in_literal_number = False
 
     source = text_line.lstrip()   # remove leading spaces
+    prev_char = ""
+    next_char = ""
+    char = " "   # default start with supposed whitespace
+    line_len = len(source)
 
     for index in range(len(source)):
+        prev_char = char
         char = source[index]
+        next_char = source[index+1] if line_len > (index+1) else " "
         
         if char == '"':    # double quote chr(34)
-            if in_quoted_string == False:
+            if not in_quoted_string:
                 in_quoted_string = True
                 lexeme = char
                 continue
@@ -77,25 +84,12 @@ def lexer(text_line:str="") -> list:
             lexeme = lexeme + char
             continue
 
-        if (isunarysymbol(char)):
-            if len(lexeme) > 0:
-                prev_char = lexeme[-1]
-            else:
-                prev_char = lexemes[-1][-1]
-            next_char = source[index+1]
-            if prev_char not in "+-*/^" and next_char.isdigit():
-                in_unary_literal = True
-                if len(lexeme) > 0:
-                    lexemes.append(lexeme)
-                lexeme = char
-                continue
-
-        if in_unary_literal:
+        if in_literal_number:
             if char.isdigit() or char in ".e":
                 lexeme = lexeme + char
                 continue
             else:
-                in_unary_literal = False
+                in_literal_number = False
 
         if (iswhitespace(char)):
         # skip multiple space chars
@@ -103,27 +97,40 @@ def lexer(text_line:str="") -> list:
                 lexemes.append(lexeme)
                 lexeme = ""
             print(f"[{lexeme}] - was a space '{char}'")
+            continue
 
-        elif (issinglesymbol(char)):
-            if len(lexeme) > 0:
-                lexemes.append(lexeme)
-                lexeme = ""
-            lexeme = char
-            lexemes.append(lexeme)
-            lexeme = ""
-            print(f"[{lexeme}] - symbol '{char}'")
+        # if (isunarysymbol(char)):
+        #     breakpoint()
+        #     if not isunarysymbol(prev_char) and next_char.isdigit():
+        #         in_literal_number = True
+        #         if len(lexeme) > 0:
+        #             lexemes.append(lexeme)
+        #         lexeme = char
 
-        elif (ispairsymbol(char)):
-            if ispairsymbol(lexeme):      # first symbol already caught?
+        # elif (issinglesymbol(char)):
+        #     if len(lexeme) > 0:
+        #         lexemes.append(lexeme)
+        #         lexeme = ""
+        #     lexeme = char
+        #     lexemes.append(lexeme)
+        #     lexeme = ""
+        #     print(f"[{lexeme}] - symbol '{char}'")
+
+        elif (isoperator(char)):
+            if isoperatorpair(prev_char + char):      # first symbol already caught?
                 lexeme = lexeme + char    # add second multi symbol
+                print(f"[{lexeme}] - operator pair '{char}'")
                 lexemes.append(lexeme)    # save pair
                 lexeme = ""
-            elif len(lexeme) > 0:            # previous is unrelated
-                    lexemes.append(lexeme)   # save previous lexeme
-                    lexeme = char            # keep first valid multi symbol
             else:
-                lexeme = lexeme + char
-            print(f"[{lexeme}] - multi symbol '{char}'")
+                if (isunarysymbol(char)):
+                    #breakpoint()
+                    if prev_char in " ^*/+-(" and next_char.isdigit():
+                        in_literal_number = True
+                if len(lexeme) > 0:            # previous is unrelated
+                    lexemes.append(lexeme)   # save previous lexeme
+                lexeme = char            # keep first valid multi symbol
+                print(f"[{lexeme}] - operator '{char}'")
 
         elif (isnamechar(char)):
             if len(lexeme) > 0:
@@ -171,9 +178,9 @@ def tokenise(program_filepath=None):
         if line == "":
             continue
 
+        print(f"lexing line='{line}'")
         parts = lexer(line)
-        print(f"line='{line}'")
-        print(f"parts={parts}")
+        print(f"parsing parts={parts}")
         opcode = str(parts[0])
 
         # check for empty line
@@ -410,7 +417,7 @@ def interpret(program=[], label_tracker={}) -> str:
             opcode = opcode + ' ' + program[pc]
             return core.Error.message(message, pc-1, opcode)
 
-    print(f"Stack size: {stack._size()}")
+    print(f"\nStack size: {stack._size()}")
     return "OK"
 
 

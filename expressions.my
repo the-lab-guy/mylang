@@ -4,7 +4,7 @@ PRINT @$
 PRINT "\nHello world\n"
 FLOOR
 
-3 / 2 * 24 - 2 ^ 4
+3 / 2 * 24-2 ^ 4
 DUP
 PRINT "\t@$ "
 PRINT
@@ -39,6 +39,9 @@ PRINT
 PRINT " @$ "
 PRINT
 
+-2^(-(3-1))
+PRINT @$
+PRINT
 PRINT Multiple words without quotes
 PRINT "\nTo use symbols, sentence must be in quotes.\n"
 HALT
