@@ -188,8 +188,6 @@ class Expression:
         self.right = str(right)
 
     def prepare(self):
-        # substitute python ** for exponent ^ symbol
-        if self.operator == "^": self.operator = "**"
         if type(self.left) is Expression:
             self.leftvalue = self.left.evaluate()
         else:
@@ -199,12 +197,17 @@ class Expression:
         else:
             self.rightvalue = self.right
 
-        # compile expression
-        self.expr = self.leftvalue + self.operator + self.rightvalue
+        # substitute python 'pow()' function for exponent ^ symbol
+        if self.operator == "^":
+            self.expr = f"pow({self.leftvalue},{self.rightvalue})"
+        else:
+            self.expr = self.leftvalue + self.operator + self.rightvalue
+        # compile expression for evaluation
         self.code = compile(self.expr, "<string>", "eval")
         # validate allowed names
         for self.name in self.code.co_names:
-            raise NameError(f"The use of '{self.name}' is not allowed")
+            if self.name != 'pow':
+                raise NameError(f"The use of '{self.name}' is not allowed")
 
     def evaluate(self):
         self.prepare()

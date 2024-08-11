@@ -1,0 +1,10 @@
+2^2
+PRINT "@$ \n"
+-2^2
+PRINT "@$ \n"
+2^-2
+PRINT "@$ \n"
+-2^-2
+PRINT "@$ \n"
+HALT
+
