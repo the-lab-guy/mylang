@@ -1,18 +1,17 @@
 3 * ((5 + 4) / 2) - 1
 DUP
-PRINT @$
 PRINT "\nHello world\n"
+PRINT "Expected: 12.5\tActual: @$\n"
 FLOOR
 
-3 / 2 * 24 - 2 ^ 4
+3 / 2 * 24-2 ^ 4
 DUP
-PRINT "\t@$ "
-PRINT
+PRINT "Expected: 20.0\tActual: @$\n"
 FLOOR
 
 ADD
-PRINT " @@ ## @# "
-PRINT
+PRINT " @@ ## #@ \n"
+PRINT "Expected: 32\tActual: @#\n"
 
 TEST_LABEL:
 PUSH 33
@@ -23,23 +22,30 @@ PRINT "CODE: 33 + @# ="
 
 ADD
 FLOAT
-PRINT " @$ "
-PRINT
+PRINT " @$\n"
 
  99+  1 
 70  * 3
-  34 / 7
+  34 / -7
 33 -   100
 
 2^(3+2)
-PRINT " @$ "
-PRINT
+PRINT "2^(3+2) = 32.0 : @$\n"
 
 22 / 7
-PRINT " @$ "
-PRINT
+PRINT "pi is approx. 22/7 : @$\n"
+
+-2^(-(3-1))
+PRINT "-2^(-(3-1)) = 0.25 : @$\n"
 
 PRINT Multiple words without quotes
 PRINT "\nTo use symbols, sentence must be in quotes.\n"
+
+PRINT "Dump 4 earlier results from Stack:\n"
+PRINT "33 -   100 = -67.0 : @$\n"
+PRINT "  34 / -7 = -4.85714 : @$\n"
+PRINT "70  * 3 = 210.0 : @$\n"
+PRINT " 99+  1  = 100.0 : @$\n"
+
 HALT
 

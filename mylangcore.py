@@ -54,6 +54,34 @@ class Expression:
         k: v for k, v in math.__dict__.items() if not k.startswith("__")
     }
 
+    def unary_minus(token_list:list) -> list:
+        right_side = token_list
+        left_side = []
+        ops = '-'
+
+        print(f"uminus received right_side token_list: {right_side}")
+        skip_part = False
+        it = enumerate(right_side)
+        for i, part in it:
+            if skip_part == True:
+                skip_part = False
+                continue
+            if str(part) == ops and (len(left_side) == 0 or str(left_side[-1]) in "^*/+-"):
+                print(f"uminus found operator {part} at {i}")
+                print(f"left_side={left_side}")
+                print(f"Type of right_side {type(right_side[i+1])}")
+                if isinstance(right_side[i+1], Expression):
+                    left_side.append('-1')
+                    left_side.append('*')
+                    print(f"left_side={left_side}")
+
+            else:
+                left_side.append(part)
+                print(f"left_side={left_side}")
+        
+        return left_side
+
+
     def tokenise_expression(ops:str, token_list:list) -> list:
         right_side = token_list
         left_side = []
@@ -64,7 +92,7 @@ class Expression:
                 skip_part = False
                 continue
             if str(part) in ops:
-                #print(f"found operator {part}")
+                print(f"tokenise found operator {part}")
                 left_op = left_side[-1]
                 operator = part
                 right_op = right_side[i+1]
@@ -72,7 +100,7 @@ class Expression:
                 left_side = left_side[:-1]
                 left_side.append(expr)
                 skip_part = True
-                #print(f"left_side={left_side} right_side={right_side[i+2:]}")
+                print(f"left_side={left_side} right_side={right_side[i+2:]}")
             else:
                 left_side.append(part)
         
@@ -83,18 +111,19 @@ class Expression:
         left_side = []
         ops = openers + closers
 
-        print(f"received right_side token_list: {right_side}")
+        print(f"parenth received right_side token_list: {right_side}")
         skip = 0
         it = enumerate(right_side)
         for i, part in it:
             if str(part) in ops:
-                print(f"found operator {part} at {i}")
+                print(f"parenth found operator {part} at {i}")
                 if part in openers:
                     left_op = left_side
                     operator, skip = Expression.parenthesise_expression(openers, closers, right_side[i+1:])
                     right_op = right_side[i+skip+1:]
                     print(f"left_op={left_op} operator={operator} right_op={right_op}")
-                    expr = Expression.tokenise_expression('^', operator)
+                    expr = Expression.unary_minus(operator)
+                    expr = Expression.tokenise_expression('^', expr)
                     expr = Expression.tokenise_expression('*/', expr)
                     expr = Expression.tokenise_expression('+-', expr)
                     # join the two lists together
@@ -118,6 +147,9 @@ class Expression:
         openers = "("
         closers = ")"
         expr = Expression.parenthesise_expression(openers, closers, expr)
+
+        # do unary minus
+        expr = Expression.unary_minus(expr)
 
         # do exponents
         expr = Expression.tokenise_expression('^', expr)
@@ -156,8 +188,6 @@ class Expression:
         self.right = str(right)
 
     def prepare(self):
-        # substitute python ** for exponent ^ symbol
-        if self.operator == "^": self.operator = "**"
         if type(self.left) is Expression:
             self.leftvalue = self.left.evaluate()
         else:
@@ -167,12 +197,17 @@ class Expression:
         else:
             self.rightvalue = self.right
 
-        # compile expression
-        self.expr = self.leftvalue + self.operator + self.rightvalue
+        # substitute python 'pow()' function for exponent ^ symbol
+        if self.operator == "^":
+            self.expr = f"pow({self.leftvalue},{self.rightvalue})"
+        else:
+            self.expr = self.leftvalue + self.operator + self.rightvalue
+        # compile expression for evaluation
         self.code = compile(self.expr, "<string>", "eval")
         # validate allowed names
         for self.name in self.code.co_names:
-            raise NameError(f"The use of '{self.name}' is not allowed")
+            if self.name != 'pow':
+                raise NameError(f"The use of '{self.name}' is not allowed")
 
     def evaluate(self):
         self.prepare()
