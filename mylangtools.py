@@ -199,7 +199,7 @@ def tokenise(program_filepath=None):
             continue
            
         # check if the line is a simple expression to be evaluated
-        expr = core.Expression.parse_expression(parts)
+        expr = core.Parser.parse_expression(parts)
         if not (expr is None):
             #print(f"Evaluation returned: {expr.evaluate()}")
             program.append(expr)
@@ -214,7 +214,7 @@ def tokenise(program_filepath=None):
             # handle each opcode
             if opcode == "PUSH":
                 if len(parts) > 2:
-                    operand = core.Expression.parse_expression(parts[1:])
+                    operand = core.Parser.parse_expression(parts[1:])
                     if operand is None:
                         warning_msg = core.Error.message(core.Messages.E_EXPR, token_counter, str(operand))
                         print(f"{warning_msg} in line: {line_number} {line}")
