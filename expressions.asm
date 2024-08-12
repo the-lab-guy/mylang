@@ -21,21 +21,23 @@ F_NUMB  db "%lld", 0
 F_STR   db "%s", 0
 F_FLOAT db "%f", 0
 
-string_literal_0 db `%f`, 0
-string_literal_1 db `\nHello world\n`, 0
-string_literal_2 db `\t%f `, 0
-string_literal_3 db `\n`, 0
-string_literal_4 db ` @@ ## %lld `, 0
-string_literal_5 db `\n`, 0
-string_literal_6 db `CODE: 33 + %lld =`, 0
-string_literal_7 db ` %f `, 0
-string_literal_8 db `\n`, 0
-string_literal_9 db ` %f `, 0
-string_literal_10 db `\n`, 0
-string_literal_11 db ` %f `, 0
-string_literal_12 db `\n`, 0
-string_literal_13 db `Multiple words without quotes`, 0
-string_literal_14 db `\nTo use symbols, sentence must be in quotes.\n`, 0
+string_literal_0 db `\nHello world\n`, 0
+string_literal_1 db `Expected: 12.5\tActual: %f\n`, 0
+string_literal_2 db `Expected: 20.0\tActual: %f\n`, 0
+string_literal_3 db ` @@ ## #@ \n`, 0
+string_literal_4 db `Expected: 32\tActual: %lld\n`, 0
+string_literal_5 db `CODE: 33 + %lld =`, 0
+string_literal_6 db ` %f\n`, 0
+string_literal_7 db `2^(3+2) = 32.0 : %f\n`, 0
+string_literal_8 db `pi is approx. 22/7 : %f\n`, 0
+string_literal_9 db `-2^(-(3-1)) = 0.25 : %f\n`, 0
+string_literal_10 db `Multiple words without quotes`, 0
+string_literal_11 db `\nTo use symbols, sentence must be in quotes.\n`, 0
+string_literal_12 db `Dump 4 earlier results from Stack:\n`, 0
+string_literal_13 db `33 -   100 = -67.0 : %f\n`, 0
+string_literal_14 db `  34 / -7 = -4.85714 : %f\n`, 0
+string_literal_15 db `70  * 3 = 210.0 : %f\n`, 0
+string_literal_16 db ` 99+  1  = 100.0 : %f\n`, 0
 
 ; -- Entry Point --
 section .text
@@ -94,13 +96,13 @@ main:
 	PUSH rax
 	PUSH rax
 ; -- PRINT --
-	POP rdx
 	SUB rsp, 40
 	LEA rcx, string_literal_0
 	XOR eax, eax
 	CALL printf
 	ADD rsp, 40
 ; -- PRINT --
+	POP rdx
 	SUB rsp, 40
 	LEA rcx, string_literal_1
 	XOR eax, eax
@@ -166,12 +168,6 @@ main:
 	XOR eax, eax
 	CALL printf
 	ADD rsp, 40
-; -- PRINT --
-	SUB rsp, 40
-	LEA rcx, string_literal_3
-	XOR eax, eax
-	CALL printf
-	ADD rsp, 40
 ; -- FLOOR --
 	POP rax
 	PXOR xmm0, xmm0
@@ -182,15 +178,15 @@ main:
 	POP rax
 	ADD qword [rsp], rax
 ; -- PRINT --
-	POP rdx
 	SUB rsp, 40
-	LEA rcx, string_literal_4
+	LEA rcx, string_literal_3
 	XOR eax, eax
 	CALL printf
 	ADD rsp, 40
 ; -- PRINT --
+	POP rdx
 	SUB rsp, 40
-	LEA rcx, string_literal_5
+	LEA rcx, string_literal_4
 	XOR eax, eax
 	CALL printf
 	ADD rsp, 40
@@ -225,7 +221,7 @@ TEST_LABEL:
 ; -- PRINT --
 	POP rdx
 	SUB rsp, 40
-	LEA rcx, string_literal_6
+	LEA rcx, string_literal_5
 	XOR eax, eax
 	CALL printf
 	ADD rsp, 40
@@ -241,13 +237,7 @@ TEST_LABEL:
 ; -- PRINT --
 	POP rdx
 	SUB rsp, 40
-	LEA rcx, string_literal_7
-	XOR eax, eax
-	CALL printf
-	ADD rsp, 40
-; -- PRINT --
-	SUB rsp, 40
-	LEA rcx, string_literal_8
+	LEA rcx, string_literal_6
 	XOR eax, eax
 	CALL printf
 	ADD rsp, 40
@@ -280,11 +270,11 @@ TEST_LABEL:
 	MOVQ rax, xmm0
 	PUSH rax
 ; -- Expression --
-; (34 / 7)
-; 34 7 / 
+; (34 / -7)
+; 34 -7 / 
 	MOV rax, __?float64?__(34.0)
 	PUSH rax
-	MOV rax, __?float64?__(7.0)
+	MOV rax, __?float64?__(-7.0)
 	PUSH rax
 	POP rax
 	MOVQ xmm1, rax
@@ -308,11 +298,82 @@ TEST_LABEL:
 	MOVQ rax, xmm0
 	PUSH rax
 ; -- Expression --
-; (2 ^ 2)
-; 2 2 ^ 
+; (2 ^ (3 + 2))
+; 2 3 2 +  ^ 
 	MOV rax, __?float64?__(2.0)
 	PUSH rax
+	MOV rax, __?float64?__(3.0)
+	PUSH rax
 	MOV rax, __?float64?__(2.0)
+	PUSH rax
+	POP rax
+	MOVQ xmm1, rax
+	POP rax
+	MOVQ xmm0, rax
+	ADDSD xmm0, xmm1
+	MOVQ rax, xmm0
+	PUSH rax
+	POP rax
+	MOVQ xmm1, rax
+	POP rax
+	MOVQ xmm0, rax
+	SUB rsp, 40
+	call pow
+	ADD rsp, 40
+	MOVQ rax, xmm0
+	PUSH rax
+; -- PRINT --
+	POP rdx
+	SUB rsp, 40
+	LEA rcx, string_literal_7
+	XOR eax, eax
+	CALL printf
+	ADD rsp, 40
+; -- Expression --
+; (22 / 7)
+; 22 7 / 
+	MOV rax, __?float64?__(22.0)
+	PUSH rax
+	MOV rax, __?float64?__(7.0)
+	PUSH rax
+	POP rax
+	MOVQ xmm1, rax
+	POP rax
+	MOVQ xmm0, rax
+	DIVSD xmm0, xmm1
+	MOVQ rax, xmm0
+	PUSH rax
+; -- PRINT --
+	POP rdx
+	SUB rsp, 40
+	LEA rcx, string_literal_8
+	XOR eax, eax
+	CALL printf
+	ADD rsp, 40
+; -- Expression --
+; (-2 ^ (-1 * (3 - 1)))
+; -2 -1 3 1 -  *  ^ 
+	MOV rax, __?float64?__(-2.0)
+	PUSH rax
+	MOV rax, __?float64?__(-1.0)
+	PUSH rax
+	MOV rax, __?float64?__(3.0)
+	PUSH rax
+	MOV rax, __?float64?__(1.0)
+	PUSH rax
+	POP rax
+	MOVQ xmm1, rax
+	POP rax
+	MOVQ xmm0, rax
+	SUBSD xmm0, xmm1
+	MOVQ rax, xmm0
+	PUSH rax
+	POP rax
+	MOVQ xmm1, rax
+	POP rax
+	MOVQ xmm0, rax
+	MULSD xmm0, xmm1
+	MOVQ rax, xmm0
 	PUSH rax
 	POP rax
 	MOVQ xmm1, rax
@@ -336,22 +397,7 @@ TEST_LABEL:
 	XOR eax, eax
 	CALL printf
 	ADD rsp, 40
-; -- Expression --
-; (22 / 7)
-; 22 7 / 
-	MOV rax, __?float64?__(22.0)
-	PUSH rax
-	MOV rax, __?float64?__(7.0)
-	PUSH rax
-	POP rax
-	MOVQ xmm1, rax
-	POP rax
-	MOVQ xmm0, rax
-	DIVSD xmm0, xmm1
-	MOVQ rax, xmm0
-	PUSH rax
 ; -- PRINT --
-	POP rdx
 	SUB rsp, 40
 	LEA rcx, string_literal_11
 	XOR eax, eax
@@ -364,14 +410,30 @@ TEST_LABEL:
 	CALL printf
 	ADD rsp, 40
 ; -- PRINT --
+	POP rdx
 	SUB rsp, 40
 	LEA rcx, string_literal_13
 	XOR eax, eax
 	CALL printf
 	ADD rsp, 40
 ; -- PRINT --
+	POP rdx
 	SUB rsp, 40
 	LEA rcx, string_literal_14
+	XOR eax, eax
+	CALL printf
+	ADD rsp, 40
+; -- PRINT --
+	POP rdx
+	SUB rsp, 40
+	LEA rcx, string_literal_15
+	XOR eax, eax
+	CALL printf
+	ADD rsp, 40
+; -- PRINT --
+	POP rdx
+	SUB rsp, 40
+	LEA rcx, string_literal_16
 	XOR eax, eax
 	CALL printf
 	ADD rsp, 40
