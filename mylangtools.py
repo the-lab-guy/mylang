@@ -1,6 +1,6 @@
 import mylangcore as core
 import textwrap
-
+from pathlib import Path
 
 def isnamechar(char:chr) -> bool:
     return char.isalnum() or char in "_:"
@@ -448,10 +448,10 @@ def precompile(program):
 #   Compile Program
 #######################
 
-def compile(program_filepath=None, program=[], string_literals=[],
+def compile(source_filepath:Path=None, program=[], string_literals=[],
             variable_names=[]) -> str:
 
-    asm_filepath = program_filepath.split('.')[0] + ".asm"
+    asm_filepath = source_filepath.with_suffix(".asm")
     out = open(asm_filepath, "w")
 
     # trailing slash on next line suppresses first blank
@@ -663,14 +663,14 @@ def compile(program_filepath=None, program=[], string_literals=[],
                 out.write(f"\tJNE {label}\n")
             else:
                 out.write(f"; -- Error: Unrecognised Branch Condition --\n")
-                return f"{core.Error.message(core.Messages.E_OPCOD, ip-1, opcode+condition)} in {program_filepath}", ""
+                return f"{core.Error.message(core.Messages.E_OPCOD, ip-1, opcode+condition)} in {source_filepath}", ""
 
         # system
         elif opcode == "HALT":
             out.write(f"; -- {opcode} --\n")
             out.write(f"\tJMP EXIT_LABEL\n")
         else:
-            return f"{core.Error.message(core.Messages.E_OPCOD, ip-1, opcode)} in {program_filepath}", ""
+            return f"{core.Error.message(core.Messages.E_OPCOD, ip-1, opcode)} in {source_filepath}", ""
 
 
     out.write(f"ERROR_LABEL:\n")
