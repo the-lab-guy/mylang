@@ -38,7 +38,7 @@
 
 ### Type Conversions
 - `FLOOR`  
-	+ Convert the floating-point number at the top of the Stack to an integer by rounding down. The result will replace the top of the Stack.
+	+ Convert the floating-point number at the top of the Stack to an integer by rounding down towards zero. The result will replace the previous value on top of the Stack.
 	+ _Note:_ If the value on the top of the Stack is not in floating-point format, the result will be undefined.
 
 - `FLOAT`  
@@ -117,6 +117,7 @@ Top of Stack = 27.0
 
 
 ***
+
 ### Notes  
 *Emphasized* _Emphasized_  
 **Strong** __Strong__
