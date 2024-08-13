@@ -12,15 +12,6 @@ group.add_argument("-c", "--compile", help="compile executable", action="store_t
 argparser.add_argument("file", help="file to run or compile")
 args = argparser.parse_args()
 
-# if args.run:
-#     print(f"run {args.file} with interpreter")
-# elif args.compile:
-#     print(f"compile {args.file} into executable")
-
-#user_action = sys.argv[1]
-#program_filepath = sys.argv[2]
-#print(f"source file: {program_filepath}")
-
 source_filepath = Path(args.file)
 
 if args.run:

@@ -99,23 +99,6 @@ def lexer(text_line:str="") -> list:
             print(f"[{lexeme}] - was a space '{char}'")
             continue
 
-        # if (isunarysymbol(char)):
-        #     breakpoint()
-        #     if not isunarysymbol(prev_char) and next_char.isdigit():
-        #         in_literal_number = True
-        #         if len(lexeme) > 0:
-        #             lexemes.append(lexeme)
-        #         lexeme = char
-
-        # elif (issinglesymbol(char)):
-        #     if len(lexeme) > 0:
-        #         lexemes.append(lexeme)
-        #         lexeme = ""
-        #     lexeme = char
-        #     lexemes.append(lexeme)
-        #     lexeme = ""
-        #     print(f"[{lexeme}] - symbol '{char}'")
-
         elif (isoperator(char)):
             if isoperatorpair(prev_char + char):      # first symbol already caught?
                 lexeme = lexeme + char    # add second multi symbol
@@ -173,8 +156,6 @@ def tokenise(program_filepath=None):
 
     for index, line in enumerate(program_lines):
         line_number = index + 1
-        #parts = line.split(" ")
-        #print(lexer(line))
         if line == "":
             continue
 
