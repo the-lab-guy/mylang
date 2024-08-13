@@ -35,6 +35,8 @@
 	+ Remove two numbers from the top of the Stack, multiply them together and put the result on top of the Stack.
 - `DIV`  
 	+ Remove two numbers from the top of the Stack, divide the second number by the first and put the result on top of the Stack. 
+- `NEG`  
+	+ Negate the number on top of the Stack, thus changing a positive value into a negative one, and vice-versa. 
 
 ### Type Conversions
 - `FLOOR`  
