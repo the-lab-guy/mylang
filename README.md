@@ -116,6 +116,16 @@ Top of Stack = 13.0
 `PUSH 9 * 3`  
 Top of Stack = 27.0
 
+```
+2^2
+PRINT "Exp: 4.0 Act: @$ \n"
+-2^2
+PRINT "Exp: 4.0 Act: @$ \n"
+2^-2
+PRINT "Exp: 0.25 Act: @$ \n"
+-2^-2
+PRINT "Exp: 0.25 Act: @$ \n"
+```
 
 
 ***
