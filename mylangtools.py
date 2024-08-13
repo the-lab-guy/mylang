@@ -358,6 +358,9 @@ def interpret(program=[], label_tracker={}) -> str:
             elif opcode == "FLOOR":
                 a = stack.pop()
                 stack.push(int(a))
+            elif opcode == "NEG":
+                a = stack.pop()
+                stack.push(-a)
             # logic ops
             elif opcode == "AND":
                 a = stack.pop()
@@ -572,6 +575,9 @@ def compile(source_filepath:Path=None, program=[], string_literals=[],
             out.write(f"\tMOVQ xmm0, rax\n")
             out.write(f"\tCVTTSD2SI rax, xmm0\n")
             out.write(f"\tPUSH rax\n")
+        elif opcode == "NEG":
+            out.write(f"; -- {opcode} --\n")
+            out.write(f"\tNEG qword [rsp]\n")
 
         # logic operations
         elif opcode == "AND":

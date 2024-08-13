@@ -1,35 +1,44 @@
 PRINT "Enter an integer: "
 READ
-PUT first_int
+POP first_int
 
 PRINT "Enter another integer: "
 READ
-PUT second_int
+POP second_int
 
-GET first_int
-GET second_int
+PUSH first_int
+PUSH second_int
 ADD
 PRINT "ADD = @# "
 
-GET first_int
-GET second_int
+PUSH first_int
+PUSH second_int
 SUB
 PRINT "SUB = @# "
 
-GET first_int
-GET second_int
+PUSH first_int
+PUSH second_int
 MUL
 PRINT "MUL = @# "
 
-GET first_int
-GET second_int
+PUSH first_int
+PUSH second_int
 JUMP.EQ.0 DivByZero
 
 DIV
 PRINT "DIV = @# "
+
+PUSH second_int
+NEG
+PUSH first_int
+NEG
+PRINT "\nNEG first int = @# \n"
+PRINT "NEG second int = @# \n"
+
 HALT
 
 DivByZero:
 PRINT "Cannot divide by zero "
-POP
+DROP
+
 HALT
