@@ -26,7 +26,7 @@
 - `READ`  
 	+ Pause the program and allow the user to enter data, until [Enter] is pressed. The data is left on the Stack and the program execution resumes.
 
-### Arithmetic Operations
+### Integer Arithmetic Operations
 - `ADD`  
 	+ Remove two numbers from the top of the Stack, add them together and put the result on top of the Stack.
 - `SUB`  
@@ -142,3 +142,12 @@ PRINT "Exp: 0.25 Act: @$ \n"
 A sentence followed by  
 a newline.
 
+#### Future Ideas
+1. optimise string constants in assembly  
+1. optimise numeric constants in assembly  
+1. implement control flow and loop statements  
+1. variables in expressions  
+1. opcode for raise to power function  
+1. opcodes for floating-point arithmetic  
+1. optimise repeating code blocks in assembly
+1. 
