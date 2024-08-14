@@ -362,6 +362,10 @@ def interpret(program=[], label_tracker={}) -> str:
                 a = stack.pop()
                 stack.push(-a)
             # logic ops
+            elif opcode == "TRUE":
+                stack.push(-1)
+            elif opcode == "FALSE":
+                stack.push(0)
             elif opcode == "AND":
                 a = stack.pop()
                 b = stack.pop()
@@ -580,6 +584,17 @@ def compile(source_filepath:Path=None, program=[], string_literals=[],
             out.write(f"\tNEG qword [rsp]\n")
 
         # logic operations
+        elif opcode == "TRUE":
+            out.write(f"; -- {opcode} --\n")
+            out.write(f"\tXOR rax, rax\n")
+            out.write(f"\tNOT rax\n")
+            out.write(f"\tPUSH rax\n")
+
+        elif opcode == "FALSE":
+            out.write(f"; -- {opcode} --\n")
+            out.write(f"\tXOR rax, rax\n")
+            out.write(f"\tPUSH rax\n")
+
         elif opcode == "AND":
             out.write(f"; -- {opcode} --\n")
             out.write(f"\tPOP rax\n")
