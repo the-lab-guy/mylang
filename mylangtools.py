@@ -314,12 +314,12 @@ def interpret(program=[], label_tracker={}) -> str:
             elif opcode.endswith(":"):
                 # drop current level IF stack if label is a THEN_xx:
                 if opcode.startswith("THEN_") and len(if_stack) > 0:
-                    print(f"{opcode}_{if_stack[-1]}")
+                    # print(f"{opcode}_{if_stack[-1]}")
                     if_stack.pop()
                 # handle ELSE_xx: label
                 elif opcode.startswith("ELSE_") and len(if_stack) > 0:
-                    print(f"{opcode} IF_{if_stack[-1]}")
-                    print(f"label_tracker[ELSE_{if_stack[-1]}:]={label_tracker[f"ELSE_{if_stack[-1]}"]}")
+                    # print(f"{opcode} IF_{if_stack[-1]}")
+                    # print(f"label_tracker[ELSE_{if_stack[-1]}:]={label_tracker[f"ELSE_{if_stack[-1]}"]}")
                     pc = label_tracker[f"THEN_{if_stack[-1]}"]
                 continue
 
@@ -385,15 +385,15 @@ def interpret(program=[], label_tracker={}) -> str:
             elif opcode == "IF":
                 if_counter += 1
                 if_stack.append(if_counter)
-                print(f"{opcode}_{if_counter}")
-                print(f"stack.top()={stack.top()}")
-                print(f"if_counter={if_counter}")
+                # print(f"{opcode}_{if_counter}")
+                # print(f"stack.top()={stack.top()}")
+                # print(f"if_counter={if_counter}")
                 if stack.pop() == 0:   # 0 = FALSE
                     if f"ELSE_{if_counter}" in label_tracker:
-                        print(f"label_tracker[ELSE_{if_counter}]={label_tracker[f"ELSE_{if_counter}"]}")
+                        # print(f"label_tracker[ELSE_{if_counter}]={label_tracker[f"ELSE_{if_counter}"]}")
                         pc = label_tracker[f"ELSE_{if_counter}"]+1
                     else:
-                        print(f"label_tracker[THEN_{if_counter}]={label_tracker[f"THEN_{if_counter}"]}")
+                        # print(f"label_tracker[THEN_{if_counter}]={label_tracker[f"THEN_{if_counter}"]}")
                         pc = label_tracker[f"THEN_{if_counter}"]+1
             
             # arithmetic
