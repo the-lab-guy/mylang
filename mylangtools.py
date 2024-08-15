@@ -314,12 +314,9 @@ def interpret(program=[], label_tracker={}) -> str:
             elif opcode.endswith(":"):
                 # drop current level IF stack if label is a THEN_xx:
                 if opcode.startswith("THEN_") and len(if_stack) > 0:
-                    # print(f"{opcode}_{if_stack[-1]}")
                     if_stack.pop()
                 # handle ELSE_xx: label
                 elif opcode.startswith("ELSE_") and len(if_stack) > 0:
-                    # print(f"{opcode} IF_{if_stack[-1]}")
-                    # print(f"label_tracker[ELSE_{if_stack[-1]}:]={label_tracker[f"ELSE_{if_stack[-1]}"]}")
                     pc = label_tracker[f"THEN_{if_stack[-1]}"]
                 continue
 
@@ -385,15 +382,10 @@ def interpret(program=[], label_tracker={}) -> str:
             elif opcode == "IF":
                 if_counter += 1
                 if_stack.append(if_counter)
-                # print(f"{opcode}_{if_counter}")
-                # print(f"stack.top()={stack.top()}")
-                # print(f"if_counter={if_counter}")
                 if stack.pop() == 0:   # 0 = FALSE
                     if f"ELSE_{if_counter}" in label_tracker:
-                        # print(f"label_tracker[ELSE_{if_counter}]={label_tracker[f"ELSE_{if_counter}"]}")
                         pc = label_tracker[f"ELSE_{if_counter}"]+1
                     else:
-                        # print(f"label_tracker[THEN_{if_counter}]={label_tracker[f"THEN_{if_counter}"]}")
                         pc = label_tracker[f"THEN_{if_counter}"]+1
             
             # arithmetic
@@ -500,7 +492,7 @@ def precompile(program):
 #######################
 
 def compile(source_filepath:Path=None, program=[], string_literals=[],
-            variable_names=[]) -> str:
+            variable_names=[], label_tracker=[]) -> str:
 
     asm_filepath = source_filepath.with_suffix(".asm")
     out = open(asm_filepath, "w")
@@ -551,6 +543,9 @@ def compile(source_filepath:Path=None, program=[], string_literals=[],
     \tMOV rbp, rsp
     """))
 
+    if_stack = []
+    if_counter = 0
+    
     ip = 0
     while ip < len(program):
         opcode = program[ip]
@@ -563,8 +558,18 @@ def compile(source_filepath:Path=None, program=[], string_literals=[],
             continue    # get next program opcode
 
         if opcode.endswith(":"):
+            if opcode.startswith("THEN_") and len(if_stack) > 0:
+                if_stack.pop()
+            elif opcode.startswith("ELSE_") and len(if_stack) > 0:
+                if f"THEN_{if_stack[-1]}" in label_tracker:
+                    label = f"THEN_{if_stack[-1]}"
+                    out.write(f"\tJMP {label}\n")            # insert ELSE/THEN jump
+                else:
+                    out.write(f"; -- Error: Mismatched IF...THEN block --\n")
+                    return f"{core.Error.message(core.Messages.E_THEN, ip-1, f"{opcode}_{if_counter}")} in {source_filepath}", ""
             out.write(f"; -- Label --\n")
             out.write(f"{opcode}\n")
+
         # stackops
         elif opcode == "PUSH":
             operand = program[ip]
@@ -604,6 +609,7 @@ def compile(source_filepath:Path=None, program=[], string_literals=[],
             out.write(f"\tPOP rcx\n")
             out.write(f"\tPUSH rax\n")
             out.write(f"\tPUSH rcx\n")
+
         # arithmetic
         elif opcode == "ADD":
             out.write(f"; -- {opcode} --\n")
@@ -729,6 +735,23 @@ def compile(source_filepath:Path=None, program=[], string_literals=[],
             else:
                 out.write(f"; -- Error: Unrecognised Branch Condition --\n")
                 return f"{core.Error.message(core.Messages.E_OPCOD, ip-1, opcode+condition)} in {source_filepath}", ""
+
+        elif opcode == "IF":
+            if_counter += 1
+            if_stack.append(if_counter)
+
+            if f"ELSE_{if_counter}" in label_tracker:
+                label = f"ELSE_{if_counter}"
+            elif f"THEN_{if_counter}" in label_tracker:
+                label = f"THEN_{if_counter}"
+            else:
+                out.write(f"; -- Error: Mismatched IF...THEN block --\n")
+                return f"{core.Error.message(core.Messages.E_THEN, ip-1, f"{opcode}_{if_counter}")} in {source_filepath}", ""
+
+            out.write(f"; -- {opcode}_{if_counter} --\n")
+            out.write(f"\tPOP rax\n")
+            out.write(f"\tAND rax, rax\n")          # test for FALSE
+            out.write(f"\tJZ {label}\n")            # insert ELSE/THEN jump
 
         # system
         elif opcode == "HALT":

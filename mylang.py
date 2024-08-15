@@ -42,10 +42,11 @@ elif args.compile:
     string_literals, variable_names = mlt.precompile(program)
     print(f"string literals:{string_literals}")
     print(f"variables names:{variable_names}")
+    print(f"labels:{label_tracker}")
 
     print("[CMD] Compiling")
     status, asm_filepath = mlt.compile(source_filepath, program, string_literals,
-                                       variable_names)
+                                       variable_names, label_tracker)
     print(status, asm_filepath)
     if status != "OK":
         quit()
