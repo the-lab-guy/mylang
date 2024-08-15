@@ -563,7 +563,7 @@ def compile(source_filepath:Path=None, program=[], string_literals=[],
             elif opcode.startswith("ELSE_") and len(if_stack) > 0:
                 if f"THEN_{if_stack[-1]}" in label_tracker:
                     label = f"THEN_{if_stack[-1]}"
-                    out.write(f"\tJMP {label}\n")            # insert ELSE/THEN jump
+                    out.write(f"\tJMP {label}\n")        # insert ELSE/THEN jump
                 else:
                     out.write(f"; -- Error: Mismatched IF...THEN block --\n")
                     return f"{core.Error.message(core.Messages.E_THEN, ip-1, f"{opcode}_{if_counter}")} in {source_filepath}", ""

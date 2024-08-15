@@ -140,8 +140,9 @@ THEN_1:
 	POP rax
 	AND rax, rax
 	JZ THEN_5
-; -- FALSE --
+; -- TRUE --
 	XOR rax, rax
+	NOT rax
 	PUSH rax
 ; -- IF_6 --
 	POP rax
