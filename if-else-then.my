@@ -1,35 +1,35 @@
 FALSE
 DUP
 IF
-PRINT "Exp: 0 Act: @# \n"
+  PRINT "Exp: 0 Act: @# \n"
 ELSE
-IF
-PRINT "Wrong, expected FALSE.\n"
-ELSE
-PRINT "Right, expected FALSE.\n"
+  IF
+    PRINT "Wrong, expected FALSE.\n"
+  ELSE
+    PRINT "Right, expected FALSE.\n"
+  THEN
+
+  TRUE
+  DUP
+  IF
+    IF
+      PRINT "Right, expected TRUE.\n"
+    ELSE
+      PRINT "Wrong, expected TRUE.\n"
+    THEN
+  ELSE
+    PRINT "Exp: -1 Act: @# \n"
+  THEN
+
 THEN
 
 TRUE
-DUP
 IF
-IF
-PRINT "Right, expected TRUE.\n"
-ELSE
-PRINT "Wrong, expected TRUE.\n"
-THEN
-ELSE
-PRINT "Exp: -1 Act: @# \n"
-THEN
-
-THEN
-
-TRUE
-IF
-FALSE
-IF
-PRINT "Double TRUE! \n"
-THEN
-PRINT "Bye! \n"
+  TRUE
+  IF
+    PRINT "Double TRUE! \n"
+  THEN
+  PRINT "Bye! \n"
 THEN
 
 HALT
