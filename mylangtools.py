@@ -153,6 +153,9 @@ def tokenise(program_filepath=None):
     token_counter = 0
     label_tracker = {}
     error_count = 0
+    if_stack = []
+    if_counter = 0
+
 
     for index, line in enumerate(program_lines):
         line_number = index + 1
@@ -168,6 +171,27 @@ def tokenise(program_filepath=None):
         if opcode == "":
             continue
 
+        # convert ELSE to an ELSE_xx: label
+        if opcode == "ELSE":
+            if len(if_stack) > 0:
+                opcode = opcode + f"_{if_stack[-1]}:"
+            else:
+                warning_msg = core.Error.message(core.Messages.E_ELSE, token_counter, str(opcode))
+                print(f"{warning_msg} in line: {line_number} {line}")
+                error_count += 1
+                opcode = f"{opcode}_0:"
+
+        # convert THEN to a THEN_xx: label
+        elif opcode == "THEN":
+            if len(if_stack) > 0:
+                opcode = opcode + f"_{if_stack[-1]}:"
+                if_stack.pop()    # drop last entry to close current IF block
+            else:
+                warning_msg = core.Error.message(core.Messages.E_THEN, token_counter, str(opcode))
+                print(f"{warning_msg} in line: {line_number} {line}")
+                error_count += 1
+                opcode = f"{opcode}_0:"
+
         # check if its a label
         if opcode.endswith(":"):
             label_tracker[opcode[:-1]] = token_counter
@@ -179,6 +203,14 @@ def tokenise(program_filepath=None):
             token_counter += 1
             continue
            
+        # check if it is an IF statement
+        if opcode == "IF":
+            if_counter += 1
+            if_stack.append(if_counter)
+            program.append(opcode)
+            token_counter += 1
+            continue
+
         # check if the line is a simple expression to be evaluated
         expr = core.Parser.parse_expression(parts)
         if not (expr is None):
@@ -249,7 +281,12 @@ def tokenise(program_filepath=None):
             error_count += 1
             continue    # skip to next line
 
-    return error_count, program, label_tracker
+    if len(if_stack) != 0:
+        warning_msg = core.Error.message(core.Messages.E_THEN, token_counter, str(opcode))
+        print(f"{warning_msg} in line: {line_number} {line}")
+        error_count += 1
+
+    return error_count, program, label_tracker,
 
 
 #########################
@@ -261,6 +298,8 @@ def interpret(program=[], label_tracker={}) -> str:
     pc = 0
     stack = core.Stack(256)
     heap = core.Heap(256)
+    if_stack = []
+    if_counter = 0
 
     while program[pc] != "HALT":
         opcode = program[pc]
@@ -273,7 +312,17 @@ def interpret(program=[], label_tracker={}) -> str:
                 continue
             # skip if its a label
             elif opcode.endswith(":"):
+                # drop current level IF stack if label is a THEN_xx:
+                if opcode.startswith("THEN_") and len(if_stack) > 0:
+                    print(f"{opcode}_{if_stack[-1]}")
+                    if_stack.pop()
+                # handle ELSE_xx: label
+                elif opcode.startswith("ELSE_") and len(if_stack) > 0:
+                    print(f"{opcode} IF_{if_stack[-1]}")
+                    print(f"label_tracker[ELSE_{if_stack[-1]}:]={label_tracker[f"ELSE_{if_stack[-1]}"]}")
+                    pc = label_tracker[f"THEN_{if_stack[-1]}"]
                 continue
+
             # stackops
             elif opcode == "DROP":
                 _ = stack.pop()
@@ -333,6 +382,20 @@ def interpret(program=[], label_tracker={}) -> str:
                         pc = label_tracker[program[pc]]
                     else:
                         pc += 1
+            elif opcode == "IF":
+                if_counter += 1
+                if_stack.append(if_counter)
+                print(f"{opcode}_{if_counter}")
+                print(f"stack.top()={stack.top()}")
+                print(f"if_counter={if_counter}")
+                if stack.pop() == 0:   # 0 = FALSE
+                    if f"ELSE_{if_counter}" in label_tracker:
+                        print(f"label_tracker[ELSE_{if_counter}]={label_tracker[f"ELSE_{if_counter}"]}")
+                        pc = label_tracker[f"ELSE_{if_counter}"]+1
+                    else:
+                        print(f"label_tracker[THEN_{if_counter}]={label_tracker[f"THEN_{if_counter}"]}")
+                        pc = label_tracker[f"THEN_{if_counter}"]+1
+            
             # arithmetic
             elif opcode == "ADD":
                 a = stack.pop()

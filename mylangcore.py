@@ -251,6 +251,8 @@ class Messages(Enum):
     E_TYPE   = "Incorrect parameter type"
     E_ILLEG  = "Illegal identifier name"
     E_EXPR   = "Invalid expression syntax"
+    E_ELSE   = "Mismatched IF...ELSE"
+    E_THEN   = "Mismatched IF...THEN"
     F_NUMB   = "%lld"
     F_STR    = "%s"
     F_FLOAT  = "%f"
