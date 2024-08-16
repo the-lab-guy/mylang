@@ -56,6 +56,11 @@
 	+ Logical XOR. Performs a bitwise XOR operation on the two values at the top of the stack and replaces them with the result.
 - `NOT`  
 	+ Logical NOT - One's Complement. Performs a bitwise NOT operation on the value at the top of the Stack and replaces it with the result.
+- `TRUE`  
+	+ Places the constant for logical True on the Stack. This is a number with all of the binary digits set to '1'. It is equivalent to the integer number '-1'.  
+	__Note__: all non-zero numbers can be considered as representing True.  
+- `FALSE`  
+	+ Places the constant for logical False on the Stack. This is a number with all of the binary digits set to '0'. It is equivalent to the integer number '0'.  
 
 ### Control Flow
 - `HALT`  
@@ -69,8 +74,30 @@
 - `JUMP.NE.0 label_name`  
 	+ If the value on top of the Stack is _NOT_ zero, then program execution continues from the instruction after label_name
 
-- `IF ... THEN ... ELSE`  
-	+ __TODO__
+- `IF ... ELSE ... THEN`  
+	+ These instruction combine to form a __Statement Block__. Upon _entering_ this stement block at the `IF` statement, the number at the top of the Stack is removed and tested for `TRUE` or `FALSE`. If it is `TRUE`, the code immediately following the `IF` is executed, up to the `ELSE` statement. If it was `FALSE` the code immediately following the `ELSE` is executed, up to the `THEN` statement.  
+	In both cases, execution then continues with the code immediately following the `THEN` statement.  
+	```
+	IF
+	  PRINT "Condition was True\n"
+	ELSE
+	  PRINT "Condition was False\n"
+	THEN
+	PRINT "Done\n"
+	```
+	_Example of an IF...ELSE...THEN statement block._  
+
+	+ Additionally, the `ELSE` clause can be omitted when a block of code needs to be executed _only_ if the condition is `TRUE`, and alternate action is necessary.
+	```
+	IF
+	  PRINT "Condition was True\n"
+	THEN
+	PRINT "Done\n"
+	```
+	_Example of an IF...THEN statement block._  
+
+<br />
+<br />
 - `REPEAT ... UNTIL`  
 	+ __TODO__
 - `WHILE ... LOOP`  
