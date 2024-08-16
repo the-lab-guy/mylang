@@ -155,6 +155,8 @@ def tokenise(program_filepath=None):
     error_count = 0
     if_stack = []
     if_counter = 0
+    for_stack = []
+    for_counter = 0
 
 
     for index, line in enumerate(program_lines):
@@ -186,6 +188,29 @@ def tokenise(program_filepath=None):
             if len(if_stack) > 0:
                 opcode = opcode + f"_{if_stack[-1]}:"
                 if_stack.pop()    # drop last entry to close current IF block
+            else:
+                warning_msg = core.Error.message(core.Messages.E_THEN, token_counter, str(opcode))
+                print(f"{warning_msg} in line: {line_number} {line}")
+                error_count += 1
+                opcode = f"{opcode}_0:"
+
+        # convert FOR to an FOR_xx: label
+        elif opcode == "FOR":
+            for_counter += 1
+            for_stack.append(for_counter)
+            if len(for_stack) > 0:
+                opcode = opcode + f"_{for_stack[-1]}:"
+            else:
+                warning_msg = core.Error.message(core.Messages.E_ELSE, token_counter, str(opcode))
+                print(f"{warning_msg} in line: {line_number} {line}")
+                error_count += 1
+                opcode = f"{opcode}_0:"
+
+        # convert NEXT to a NEXT_xx: label
+        elif opcode == "NEXT":
+            if len(for_stack) > 0:
+                opcode = opcode + f"_{for_stack[-1]}:"
+                for_stack.pop()    # drop last entry to close current IF block
             else:
                 warning_msg = core.Error.message(core.Messages.E_THEN, token_counter, str(opcode))
                 print(f"{warning_msg} in line: {line_number} {line}")
@@ -300,6 +325,8 @@ def interpret(program=[], label_tracker={}) -> str:
     heap = core.Heap(256)
     if_stack = []
     if_counter = 0
+    for_stack = {}
+    for_current = ""
 
     while program[pc] != "HALT":
         opcode = program[pc]
@@ -318,9 +345,40 @@ def interpret(program=[], label_tracker={}) -> str:
                 # handle ELSE_xx: label
                 elif opcode.startswith("ELSE_") and len(if_stack) > 0:
                     pc = label_tracker[f"THEN_{if_stack[-1]}"]
+                
+                # loop back to FOR_xx: to iterate 
+                elif opcode.startswith("NEXT_") and len(for_stack) > 0:
+                    pc = label_tracker[f"FOR_{opcode[5:-1]}"]
+                # drop current level NEXT stack if label is a NEXT_xx:
+                elif opcode.startswith("FOR_"): #and len(for_stack) > 0:
+                    if opcode in for_stack:
+                        stack_pointer = int(for_stack[opcode])
+                        for_inc = stack.buf[stack_pointer-1]
+                        for_end = stack.buf[stack_pointer-2]
+                        for_beg = stack.buf[stack_pointer-3]
+                        done = False
+                        if for_inc < 0:
+                            done = True if for_beg <= for_end else False
+                        else:
+                            done = True if for_beg >= for_end else False
+                        if done:
+                            _ = for_stack.pop(opcode)
+                            stack._set_sp(stack._size()-stack_pointer)
+                            pc = label_tracker[f"NEXT_{opcode[4:-1]}"]+1
+                        else:
+                            for_beg += for_inc
+                            stack.buf[stack_pointer-3] = for_beg
+                    else:
+                        for_stack[opcode] = stack._size()
                 continue
 
             # stackops
+            elif opcode == "INDEX":
+                if len(for_stack) > 0:
+                    for_current = list(for_stack)[-1]
+                    #print(for_current)
+                    stack_pointer = int(for_stack[for_current])
+                    stack.push(stack.buf[stack_pointer-3])
             elif opcode == "DROP":
                 _ = stack.pop()
             elif opcode == "PUSH":
@@ -436,6 +494,7 @@ def interpret(program=[], label_tracker={}) -> str:
             elif opcode == "NOT":
                 a = stack.pop()
                 stack.push(~a)
+    
             # input / output
             elif opcode == "PRINT":
                 string_literal = program[pc]\

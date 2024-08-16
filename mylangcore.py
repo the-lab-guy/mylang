@@ -26,6 +26,9 @@ class Stack:
     def _size (self):
         return self.sp+1
 
+    def _set_sp (self, index):
+        self.sp = index-1
+
 
 class Heap:
 
