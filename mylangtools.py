@@ -351,25 +351,26 @@ def interpret(program=[], label_tracker={}) -> str:
                     pc = label_tracker[f"FOR_{opcode[5:-1]}"]
                 # drop current level NEXT stack if label is a NEXT_xx:
                 elif opcode.startswith("FOR_"): #and len(for_stack) > 0:
-                    if opcode in for_stack:
-                        stack_pointer = int(for_stack[opcode])
-                        for_inc = stack.buf[stack_pointer-1]
-                        for_end = stack.buf[stack_pointer-2]
-                        for_beg = stack.buf[stack_pointer-3]
-                        done = False
-                        if for_inc < 0:
-                            done = True if for_beg <= for_end else False
-                        else:
-                            done = True if for_beg >= for_end else False
-                        if done:
-                            _ = for_stack.pop(opcode)
-                            stack._set_sp(stack._size()-stack_pointer)
-                            pc = label_tracker[f"NEXT_{opcode[4:-1]}"]+1
-                        else:
-                            for_beg += for_inc
-                            stack.buf[stack_pointer-3] = for_beg
-                    else:
+                    if opcode not in for_stack:
                         for_stack[opcode] = stack._size()
+
+                    stack_pointer = int(for_stack[opcode])
+                    for_inc = stack.buf[stack_pointer-1]
+                    for_end = stack.buf[stack_pointer-2]
+                    for_beg = stack.buf[stack_pointer-3]
+                    done = False
+                    if for_inc < 0:
+                        done = True if for_beg < for_end else False
+                    else:
+                        done = True if for_beg > for_end else False
+                    if done:
+                        _ = for_stack.pop(opcode)
+                        stack._set_sp(stack._size()-stack_pointer)
+                        pc = label_tracker[f"NEXT_{opcode[4:-1]}"]+1
+                    else:
+                        for_beg += for_inc
+                        stack.buf[stack_pointer-3] = for_beg
+
                 continue
 
             # stackops
