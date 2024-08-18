@@ -353,6 +353,10 @@ def interpret(program=[], label_tracker={}) -> str:
                 elif opcode.startswith("FOR_"): #and len(for_stack) > 0:
                     if opcode not in for_stack:
                         for_stack[opcode] = stack._size()
+                    else:
+                        stack_pointer = int(for_stack[opcode])
+                        for_beg += for_inc
+                        stack.buf[stack_pointer-3] = for_beg
 
                     stack_pointer = int(for_stack[opcode])
                     for_inc = stack.buf[stack_pointer-1]
@@ -363,13 +367,11 @@ def interpret(program=[], label_tracker={}) -> str:
                         done = True if for_beg < for_end else False
                     else:
                         done = True if for_beg > for_end else False
+
                     if done:
                         _ = for_stack.pop(opcode)
                         stack._set_sp(stack._size()-stack_pointer)
                         pc = label_tracker[f"NEXT_{opcode[4:-1]}"]+1
-                    else:
-                        for_beg += for_inc
-                        stack.buf[stack_pointer-3] = for_beg
 
                 continue
 
@@ -377,7 +379,6 @@ def interpret(program=[], label_tracker={}) -> str:
             elif opcode == "INDEX":
                 if len(for_stack) > 0:
                     for_current = list(for_stack)[-1]
-                    #print(for_current)
                     stack_pointer = int(for_stack[for_current])
                     stack.push(stack.buf[stack_pointer-3])
             elif opcode == "DROP":
