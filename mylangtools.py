@@ -621,9 +621,6 @@ def compile(source_filepath:Path=None, program=[], string_literals=[],
             rpn_to_x64(opcode, out)
             continue    # get next program opcode
 
-        if opcode == "INDEX":
-            continue
-
         if opcode.endswith(":"):
             if opcode.startswith("THEN_") and len(if_stack) > 0:
                 if_stack.pop()
@@ -647,12 +644,23 @@ def compile(source_filepath:Path=None, program=[], string_literals=[],
                 _ = for_stack.remove(label+":")
             elif opcode.startswith("FOR_"):
                 for_stack.append(opcode)
+                label = f"FOR_BEG_{opcode[4:-1]}"
                 # save stackpointer to FOR vars
                 variable_name = "AV_" + opcode[:-1]
                 out.write(f"; -- {opcode} --\n")
                 out.write(f"\tLEA rcx, {variable_name}\n")
                 out.write(f"\tMOV qword[rcx], rsp\n")
-                out.write(f"{opcode}\n")
+                out.write(f"\tJMP {label}\n")       # skip increment on first iteration
+
+                # save new index and continue
+                out.write(f"{opcode}\n")                      # for label
+                out.write(f"\tLEA rcx, {variable_name}\n")
+                out.write(f"\tMOV rdx, qword[rcx]\n")
+                out.write(f"\tMOV rax, qword[rdx+16]\n")       # load start
+                out.write(f"\tADD rax, qword[rdx]\n")          # add increment
+                out.write(f"\tMOV qword[rdx+16], rax\n")       # save index
+
+                out.write(f"{label}:\n")
                 out.write(f"\tLEA rcx, {variable_name}\n")
                 out.write(f"\tMOV rdx, qword[rcx]\n")
                 out.write(f"\tMOV rax, qword[rdx+16]\n")       # load start
@@ -661,22 +669,30 @@ def compile(source_filepath:Path=None, program=[], string_literals=[],
                 out.write(f"\tAND rcx, rcx\n")                 # check sign of increment
                 out.write(f"\tJNS {"FOR_POS_"}{opcode[4:-1]}\n") # skip to positive inc
                 # test for reverse limit
-                out.write(f"\tCMP rax, qword[rdx+8]\n")        # subtract end
-                out.write(f"\tJL {"NEXT_"}{opcode[4:-1]}\n")   # exit for
-                out.write(f"\tJMP {"FOR_INC_"}{opcode[4:-1]}\n")   # skip to increment
+                out.write(f"\tCMP rax, qword[rdx+8]\n")        # compare with end
+                out.write(f"\tJL {"NEXT_"}{opcode[4:-1]}\n")   # exit for loop
+                out.write(f"\tJMP {"FOR_RUN_"}{opcode[4:-1]}\n")   # skip to execute
                 # test for forward limit
                 out.write(f"FOR_POS_{opcode[4:-1]}:\n")        # label
-                out.write(f"\tCMP rax, qword[rdx+8]\n")        # subtract end
-                out.write(f"\tJG {"NEXT_"}{opcode[4:-1]}\n")   # exit for
-                # save new index and continue
-                out.write(f"FOR_INC_{opcode[4:-1]}:\n")        # label
-                out.write(f"\tADD rax, qword[rdx]\n")          # add increment
-                out.write(f"\tMOV qword[rdx+16], rax\n")       # save index
+                out.write(f"\tCMP rax, qword[rdx+8]\n")        # compare with end
+                out.write(f"\tJG {"NEXT_"}{opcode[4:-1]}\n")   # exit for loop
+                # user code loop here
+                out.write(f"FOR_RUN_{opcode[4:-1]}:\n")        # label
+                #out.write(f"\tADD rax, qword[rdx]\n")          # add increment
+                #out.write(f"\tMOV qword[rdx+16], rax\n")       # save index
             else:            
                 out.write(f"; -- Label --\n")
                 out.write(f"{opcode}\n")
 
         # stackops
+        elif opcode == "INDEX":
+            variable_name = f"AV_{for_stack[-1][:-1]}"
+            out.write(f"; -- {opcode} --\n")
+            out.write(f"\tLEA rcx, {variable_name}\n")
+            out.write(f"\tMOV rdx, qword[rcx]\n")
+            out.write(f"\tMOV rax, qword[rdx+16]\n")       # load start/index
+            out.write(f"\tPUSH rax\n")
+
         elif opcode == "PUSH":
             operand = program[ip]
             ip += 1
