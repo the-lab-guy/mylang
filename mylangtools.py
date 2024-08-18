@@ -355,7 +355,8 @@ def interpret(program=[], label_tracker={}) -> str:
                         for_stack[opcode] = stack._size()
                     else:
                         stack_pointer = int(for_stack[opcode])
-                        for_beg += for_inc
+                        for_inc = stack.buf[stack_pointer-1]
+                        for_beg = stack.buf[stack_pointer-3] + for_inc
                         stack.buf[stack_pointer-3] = for_beg
 
                     stack_pointer = int(for_stack[opcode])
@@ -369,18 +370,13 @@ def interpret(program=[], label_tracker={}) -> str:
                         done = True if for_beg > for_end else False
 
                     if done:
+                        stack._set_sp(stack_pointer-3)
                         _ = for_stack.pop(opcode)
-                        stack._set_sp(stack._size()-stack_pointer)
                         pc = label_tracker[f"NEXT_{opcode[4:-1]}"]+1
 
                 continue
 
             # stackops
-            elif opcode == "INDEX":
-                if len(for_stack) > 0:
-                    for_current = list(for_stack)[-1]
-                    stack_pointer = int(for_stack[for_current])
-                    stack.push(stack.buf[stack_pointer-3])
             elif opcode == "DROP":
                 _ = stack.pop()
             elif opcode == "PUSH":
@@ -447,6 +443,11 @@ def interpret(program=[], label_tracker={}) -> str:
                         pc = label_tracker[f"ELSE_{if_counter}"]+1
                     else:
                         pc = label_tracker[f"THEN_{if_counter}"]+1
+            elif opcode == "INDEX":
+                if len(for_stack) > 0:
+                    for_current = list(for_stack)[-1]
+                    stack_pointer = int(for_stack[for_current])
+                    stack.push(stack.buf[stack_pointer-3])
             
             # arithmetic
             elif opcode == "ADD":

@@ -4,30 +4,33 @@ class Stack:
 
     def __init__(self, size) -> None:
         self.buf = [0 for _ in range(size)]
-        self.sp = -1
+        self.sp = 0
 
     def push (self, number):
-        self.sp += 1
         self.buf[self.sp] = number
-        #self._show()
+        self.sp += 1
+        # self._show()
 
     def pop (self):
-        number = self.buf[self.sp]
         self.sp -= 1
-        #self._show()
+        number = self.buf[self.sp]
+        # self._show()
         return number
 
     def top (self):
+        # self._show()
         return self.buf[self.sp]
     
     def _show (self):
-        print(self.buf[0:self.sp+1])
+        print(f"Size:{self.sp} Data:{self.buf[:self.sp]}")
 
     def _size (self):
-        return self.sp+1
+        # self._show()
+        return self.sp
 
     def _set_sp (self, index):
-        self.sp = index-1
+        self.sp = index
+        # self._show()
 
 
 class Heap:

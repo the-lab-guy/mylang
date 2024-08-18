@@ -5,8 +5,8 @@ default rel
 ; -- variables --
 section .bss
 read_buffer resq 1  ; 64-bits integer = 8 bytes
-AV_FOR_1: resq 1  ; 64-bits integer = 8 bytes
 AV_FOR_2: resq 1  ; 64-bits integer = 8 bytes
+AV_FOR_1: resq 1  ; 64-bits integer = 8 bytes
 
 ; -- constants --
 section .data
@@ -26,7 +26,7 @@ F_STR   db "%s", 0
 F_FLOAT db "%f", 0
 
 string_literal_0 db `%lld HEY!\n`, 0
-string_literal_1 db `%lld YAY!\n`, 0
+string_literal_1 db `    %lld YAY!\n`, 0
 
 ; -- Entry Point --
 section .text
@@ -42,7 +42,7 @@ main:
 ; -- PUSH num --
 	PUSH 1
 ; -- PUSH num --
-	PUSH 10
+	PUSH 3
 ; -- PUSH num --
 	PUSH 1
 ; -- FOR_1: --
@@ -81,11 +81,8 @@ FOR_RUN_1:
 	XOR eax, eax
 	CALL printf
 	ADD rsp, 40
-; -- NEXT_1: --
-	JMP FOR_1
-NEXT_1:
 ; -- PUSH num --
-	PUSH 10
+	PUSH 3
 ; -- PUSH num --
 	PUSH 1
 ; -- PUSH num --
@@ -129,6 +126,9 @@ FOR_RUN_2:
 ; -- NEXT_2: --
 	JMP FOR_2
 NEXT_2:
+; -- NEXT_1: --
+	JMP FOR_1
+NEXT_1:
 ; -- HALT --
 	JMP EXIT_LABEL
 ERROR_LABEL:
