@@ -98,12 +98,52 @@
 
 <br />
 <br />
+
 - `REPEAT ... UNTIL`  
 	+ __TODO__
 - `WHILE ... LOOP`  
 	+ __TODO__
 - `FOR ... NEXT`  
-	+ __TODO__
+	+ These two instructions are used when it is necessary to repeat an operation a particular number of times, or operate on range of items in a sequence. The number of times to repeat, the starting and ending indices and the incremental step size is determined by three values at the top of the Stack.
+	```
+	PUSH 1
+	PUSH 3
+	PUSH 1
+	FOR
+	  PRINT "Hello! "
+	NEXT
+	PRINT
+	```
+	In the example above, the `PRINT "Hello! "` statement will be executed three times, because of the parameter values pushed on to the Stack before the `FOR` statement. Here, the values 1, 3, 1 are pushed on to the Stack; the first 1 is the starting index, the 3 is the ending index, and finally the last 1 is the step size, or increment. So in this example, the `FOR` loop will go from 1 to 3 in steps of 1, executing the instructions between the `FOR ... NEXT` statements.  
+	The current value of the internal counter of the `FOR` loop, the `INDEX`, can be accessed by the repeating code each time through the loop. This is shown in the next example, which also shows a negative increment.
+	```
+	PUSH 10
+	PUSH 0
+	PUSH -1
+	FOR
+	  INDEX
+	  PRINT "T-minus @# \n"
+	NEXT
+	PRINT "Blast Off!"
+	```  
+	In this example, we have a countdown. The starting value of 10 is pushed on to the stack, followed by the ending value of 0, and finally the step size of -1. Inside the `FOR ... NEXT` loop, the `INDEX` command puts a copy of the current value of the internal counter, or index, on to the Stack; which is then used in the `PRINT` statement to show the countdown as it progresses. Once the ending value is reached, in this case 0, the `FOR ... NEXT` loop completes and the instructions that follow are executed; in this case the `PRINT "Blast OFF!"` statement.  
+	```
+	T-minus 10
+	T-minus 9
+	T-minus 8
+	T-minus 7
+	T-minus 6
+	T-minus 5
+	T-minus 4
+	T-minus 3
+	T-minus 2
+	T-minus 1
+	T-minus 0
+	Blast Off!
+	```
+	Above: Example of the output from the previous program.  
+
+
 - `TO ... DONE`  
 	+ __TODO__
 
