@@ -35,6 +35,16 @@ DROP
 PRINT "\tExpecting: 1111 \n"
 PRINT "\tActual Top: @# \n"
 
-
+PRINT "ROT test\n"
+PRINT "Pushing 1 2 3\n"
+PRINT "Expecting: 1 3 2\n"
+PUSH 1
+PUSH 2
+PUSH 3
+ROT
+PRINT "@# "
+PRINT "@# "
+PRINT "@# \n"
+HALT
 
 HALT

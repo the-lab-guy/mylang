@@ -410,6 +410,14 @@ def interpret(program=[], label_tracker={}) -> str:
                 b = stack.pop()
                 stack.push(a)
                 stack.push(b)
+            elif opcode == "ROT":
+                a = stack.pop()
+                b = stack.pop()
+                c = stack.pop()
+                stack.push(b)
+                stack.push(a)
+                stack.push(c)
+
             # branch control
             elif opcode == "JUMP":
                 condition = str(program[pc])
@@ -733,6 +741,14 @@ def compile(source_filepath:Path=None, program=[], string_literals=[],
             out.write(f"\tPOP rcx\n")
             out.write(f"\tPUSH rax\n")
             out.write(f"\tPUSH rcx\n")
+        elif opcode == "ROT":
+            out.write(f"; -- {opcode} --\n")
+            out.write(f"\tPOP rax\n")
+            out.write(f"\tPOP rcx\n")
+            out.write(f"\tPOP rdx\n")
+            out.write(f"\tPUSH rcx\n")
+            out.write(f"\tPUSH rax\n")
+            out.write(f"\tPUSH rdx\n")
 
         # arithmetic
         elif opcode == "ADD":

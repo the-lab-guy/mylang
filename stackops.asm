@@ -17,6 +17,8 @@ E_MISS  db "Missing parameter", 0
 E_TYPE  db "Incorrect parameter type", 0
 E_ILLEG db "Illegal identifier name", 0
 E_EXPR  db "Invalid expression syntax", 0
+E_ELSE  db "Mismatched IF...ELSE", 0
+E_THEN  db "Mismatched IF...THEN", 0
 F_NUMB  db "%lld", 0
 F_STR   db "%s", 0
 F_FLOAT db "%f", 0
@@ -38,6 +40,12 @@ string_literal_13 db `Pushing 2222 \n`, 0
 string_literal_14 db `Dropping 2222 \n`, 0
 string_literal_15 db `\tExpecting: 1111 \n`, 0
 string_literal_16 db `\tActual Top: %lld \n`, 0
+string_literal_17 db `ROT test\n`, 0
+string_literal_18 db `Pushing 1 2 3\n`, 0
+string_literal_19 db `Expecting: 1 3 2\n`, 0
+string_literal_20 db `%lld `, 0
+string_literal_21 db `%lld `, 0
+string_literal_22 db `%lld \n`, 0
 
 ; -- Entry Point --
 section .text
@@ -180,6 +188,60 @@ main:
 	XOR eax, eax
 	CALL printf
 	ADD rsp, 40
+; -- PRINT --
+	SUB rsp, 40
+	LEA rcx, string_literal_17
+	XOR eax, eax
+	CALL printf
+	ADD rsp, 40
+; -- PRINT --
+	SUB rsp, 40
+	LEA rcx, string_literal_18
+	XOR eax, eax
+	CALL printf
+	ADD rsp, 40
+; -- PRINT --
+	SUB rsp, 40
+	LEA rcx, string_literal_19
+	XOR eax, eax
+	CALL printf
+	ADD rsp, 40
+; -- PUSH num --
+	PUSH 1
+; -- PUSH num --
+	PUSH 2
+; -- PUSH num --
+	PUSH 3
+; -- ROT --
+	POP rax
+	POP rcx
+	POP rdx
+	PUSH rcx
+	PUSH rax
+	PUSH rdx
+; -- PRINT --
+	POP rdx
+	SUB rsp, 40
+	LEA rcx, string_literal_20
+	XOR eax, eax
+	CALL printf
+	ADD rsp, 40
+; -- PRINT --
+	POP rdx
+	SUB rsp, 40
+	LEA rcx, string_literal_21
+	XOR eax, eax
+	CALL printf
+	ADD rsp, 40
+; -- PRINT --
+	POP rdx
+	SUB rsp, 40
+	LEA rcx, string_literal_22
+	XOR eax, eax
+	CALL printf
+	ADD rsp, 40
+; -- HALT --
+	JMP EXIT_LABEL
 ; -- HALT --
 	JMP EXIT_LABEL
 ERROR_LABEL:
