@@ -12,6 +12,10 @@
 	+ Duplicates the number at the top of the Stack, creating two identical entries.
 - `SWAP`  
 	+ Exchanges the number on top of the Stack with the number immediately below it.
+- `ROT`  
+	+ Moves the the third number in the Stack to the top of the Stack, effectively rotating the position of the top three numbers.  
+	e.g. 1 2 3 <-- Top of Stack  
+	after `ROT` becomes 2 3 1 <-- Top of Stack  
 - `DROP`  
 	+ Removes the number at the top of the Stack.
 
